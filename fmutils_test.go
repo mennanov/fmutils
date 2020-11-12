@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"fmutils/testproto"
 )
@@ -54,6 +55,14 @@ func Test_NestedMaskFromPaths(t *testing.T) {
 			}
 		})
 	}
+}
+
+func createAny(m proto.Message) *anypb.Any {
+	any, err := anypb.New(m)
+	if err != nil {
+		panic(err)
+	}
+	return any
 }
 
 func TestFilter(t *testing.T) {
@@ -235,6 +244,23 @@ func TestFilter(t *testing.T) {
 				}},
 			},
 		},
+		{
+			name:  "mask with Any field in oneof field keeps the entire Any field",
+			paths: []string{"details"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Details{Details: createAny(&testproto.Result{
+					Data:      []byte("bytes"),
+					NextToken: 1,
+				})},
+			},
+			want: &testproto.Event{
+				Changed: &testproto.Event_Details{Details: createAny(&testproto.Result{
+					Data:      []byte("bytes"),
+					NextToken: 1,
+				})},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -400,7 +426,7 @@ func TestPrune(t *testing.T) {
 				EventId: 1,
 				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
 					User: &testproto.User{
-						Name:   "user name",
+						Name: "user name",
 					},
 					Photo: &testproto.Photo{
 						PhotoId: 1,
