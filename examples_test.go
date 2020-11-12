@@ -53,7 +53,8 @@ func ExampleFilter_update_request() {
 	// Normalize and validate the field mask before using it.
 	updateProfileRequest.Fieldmask.Normalize()
 	if !updateProfileRequest.Fieldmask.IsValid(profile) {
-
+		// Return an error.
+		panic("invalid field mask")
 	}
 	// Redact the request according to the provided field mask.
 	fmutils.Filter(updateProfileRequest.GetProfile(), updateProfileRequest.Fieldmask.GetPaths())
@@ -64,7 +65,7 @@ func ExampleFilter_update_request() {
 	// Output: user:{user_id:64 name:"new user name"} photo:{photo_id:2 path:"new photo path" dimensions:{width:50 height:120}} login_timestamps:1 login_timestamps:2 login_timestamps:3 login_timestamps:4 login_timestamps:5
 }
 
-// ExampleFilter_reuse_mask illustrates how a single NestedMap instance can be used to process multiple proto messages.
+// ExampleFilter_reuse_mask illustrates how a single NestedMask instance can be used to process multiple proto messages.
 func ExampleFilter_reuse_mask() {
 	users := []*testproto.User{
 		{
