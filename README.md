@@ -19,4 +19,4 @@ fmutils.Prune(protoMessage, []string{"a.b.c", "d"})
 
 ### Examples
 
-See the `examples_test.go` for real life examples.
+See the [examples_test.go](https://github.com/mennanov/fmutils/blob/main/examples_test.go) for real life examples.
