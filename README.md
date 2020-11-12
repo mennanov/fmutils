@@ -1,6 +1,6 @@
 # Golang protobuf FieldMask utils
 
-[![Build Status](https://cloud.drone.io/api/badges/mennanov/fmutils/status.svg)](https://cloud.drone.io/mennanov/fmutils)
+[![Build Status](https://cloud.drone.io/api/badges/mennanov/fmutils/status.svg?ref=refs/heads/main)](https://cloud.drone.io/mennanov/fmutils)
 [![Coverage Status](https://coveralls.io/repos/github/mennanov/fmutils/badge.svg?branch=main)](https://coveralls.io/github/mennanov/fmutils?branch=main)
 
 ### Filter a protobuf message with a FieldMask applied
