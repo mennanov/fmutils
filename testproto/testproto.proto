@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package testproto;
+
+option go_package = ".;testproto";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/field_mask.proto";
+
+message User {
+  int64 user_id = 1;
+  string name = 2;
+}
+
+message Photo {
+  int64 photo_id = 1;
+  string path = 2;
+  Dimensions dimensions = 3;
+}
+
+message Dimensions {
+  int32 width = 1;
+  int32 height = 2;
+}
+
+message Profile {
+  User user = 1;
+  Photo photo = 2;
+  repeated int64 login_timestamps = 3;
+}
+
+message UpdateProfileRequest {
+  Profile profile = 1;
+  google.protobuf.FieldMask fieldmask = 2;
+}
+
+enum Status {
+  UNKNOWN = 0;
+  OK = 1;
+  FAILED = 2;
+}
+
+message Result {
+  bytes data = 1;
+  int64 next_token = 2;
+}
+
+message Event {
+  int64 event_id = 1;
+  oneof changed {
+    User user = 2;
+    Photo photo = 3;
+    Status status = 4;
+    google.protobuf.Any details = 5;
+    Profile profile = 6;
+  }
+}
