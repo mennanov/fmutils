@@ -2,6 +2,7 @@
 
 [![Build Status](https://cloud.drone.io/api/badges/mennanov/fmutils/status.svg?ref=refs/heads/main)](https://cloud.drone.io/mennanov/fmutils)
 [![Coverage Status](https://codecov.io/gh/mennanov/fmutils/branch/main/graph/badge.svg)](https://codecov.io/gh/mennanov/fmutils)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/mennanov/fmutils)](https://pkg.go.dev/github.com/mennanov/fmutils)
 
 ### Filter a protobuf message with a FieldMask applied
 
