@@ -31,19 +31,18 @@ func NestedMaskFromPaths(paths []string) NestedMask {
 		curr := mask
 		var letters []rune
 		for _, letter := range path {
-			if string(letter) == "." {
+			if letter == '.' {
 				if len(letters) == 0 {
 					continue
 				}
 
 				key := string(letters)
 				c, ok := curr[key]
-				if ok {
-					curr = c
-				} else {
-					curr[key] = make(NestedMask)
-					curr = curr[key]
+				if !ok {
+					c = make(NestedMask)
+					curr[key] = c
 				}
+				curr = c
 				letters = nil
 				continue
 			}

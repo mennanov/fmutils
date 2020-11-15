@@ -445,3 +445,9 @@ func TestPrune(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkNestedMaskFromPaths(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		NestedMaskFromPaths([]string{"aaa.bbb.c.d.e.f", "aa.b.cc.ddddddd", "e", "f", "g.h.i.j.k"})
+	}
+}
