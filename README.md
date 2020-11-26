@@ -7,24 +7,26 @@
 ### Filter a protobuf message with a FieldMask applied
 
 ```go
-// Keep the fields mentioned in the paths untouched, all the other fields will be cleared.
+// Keeps the fields mentioned in the paths untouched, all the other fields will be cleared.
 fmutils.Filter(protoMessage, []string{"a.b.c", "d"})
 ```
 
 ### Prune a protobuf message with a FieldMask applied
 
 ```go
-// Clear all the fields mentioned in the paths, all the other fields will be left untouched.
+// Clears all the fields mentioned in the paths, all the other fields will be left untouched.
 fmutils.Prune(protoMessage, []string{"a.b.c", "d"})
 ```
 
 ### Working with Golang protobuf APIv1
 
 This library uses the [new Go API for protocol buffers](https://blog.golang.org/protobuf-apiv2).
-If your `*.pb.go` files are generated with the old version APIv1 then you have 2 choses:
+If your `*.pb.go` files are generated with the old version APIv1 then you have 2 choices:
 
 - migrate to the new APIv2 `google.golang.org/protobuf`
 - upgrade an existing APIv1 version to `github.com/golang/protobuf@v1.4.0` that implements the new API
+
+In both cases you'll need to regenerate `*.pb.go` files.
 
 If you decide to stay with APIv1 then you need to use the [`proto.MessageV2`](https://pkg.go.dev/github.com/golang/protobuf@v1.4.3/proto#MessageV2) function like this:
 
