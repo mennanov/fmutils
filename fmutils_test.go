@@ -272,6 +272,196 @@ func TestFilter(t *testing.T) {
 	}
 }
 
+func TestFilterWithStructs(t *testing.T) {
+	tests := []struct {
+		name  string
+		paths []string
+		msg   proto.Message
+		want  proto.Message
+	}{
+		{
+			name:  "test filter with an ARRAY of natives - int",
+			paths: []string{"profile.array_of_natives"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
+					User: &testproto.User{
+						UserId: 1,
+						Name:   "user name",
+					},
+					Photo: &testproto.Photo{
+						PhotoId: 1,
+						Path:    "photo path",
+						Dimensions: &testproto.Dimensions{
+							Width:  100,
+							Height: 120,
+						},
+					},
+					LoginTimestamps: []int64{1, 2, 3},
+					ArrayOfNatives: []int64{
+						1,
+						2,
+						3,
+					},
+				}},
+			},
+			want: &testproto.Event{
+				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
+					ArrayOfNatives: []int64{
+						1,
+						2,
+						3,
+					},
+				}},
+			},
+		},
+		{
+			name:  "test filter with ONE struct (Size) containing a native - int",
+			paths: []string{"profile.size"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
+					User: &testproto.User{
+						UserId: 1,
+						Name:   "user name",
+					},
+					Photo: &testproto.Photo{
+						PhotoId: 1,
+						Path:    "photo path",
+						Dimensions: &testproto.Dimensions{
+							Width:  100,
+							Height: 120,
+						},
+					},
+					LoginTimestamps: []int64{1, 2, 3},
+					Size: &testproto.Size{
+						Size: 100,
+					},
+				}},
+			},
+			want: &testproto.Event{
+				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
+					Size: &testproto.Size{
+						Size: 100,
+					},
+				}},
+			},
+		},
+		{
+			name:  "test filter with ARRAY of structs (Size) containing a native - int",
+			paths: []string{"profile.array_of_sizes"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
+					User: &testproto.User{
+						UserId: 1,
+						Name:   "user name",
+					},
+					Photo: &testproto.Photo{
+						PhotoId: 1,
+						Path:    "photo path",
+						Dimensions: &testproto.Dimensions{
+							Width:  100,
+							Height: 120,
+						},
+					},
+					LoginTimestamps: []int64{1, 2, 3},
+					ArrayOfSizes: []*testproto.Size{
+						{
+							Size: 100,
+						},
+						{
+							Size: 110,
+						},
+						{
+							Size: 120,
+						},
+					},
+				}},
+			},
+			want: &testproto.Event{
+				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
+					ArrayOfSizes: []*testproto.Size{
+						{
+							Size: 100,
+						},
+						{
+							Size: 110,
+						},
+						{
+							Size: 120,
+						},
+					},
+				}},
+			},
+		},
+		{
+			name:  "test filter with ARRAY OF ARRAY of structs (Size) containing a native - int",
+			paths: []string{"profile.array_of_array_of_sizes"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
+					User: &testproto.User{
+						UserId: 1,
+						Name:   "user name",
+					},
+					Photo: &testproto.Photo{
+						PhotoId: 1,
+						Path:    "photo path",
+						Dimensions: &testproto.Dimensions{
+							Width:  100,
+							Height: 120,
+						},
+					},
+					LoginTimestamps: []int64{1, 2, 3},
+					ArrayOfArrayOfSizes: []*testproto.ArrayOfSizes{
+						{
+							ArrayOfSizes: []*testproto.Size{
+								{
+									Size: 100,
+								},
+								{
+									Size: 110,
+								},
+								{
+									Size: 120,
+								},
+							},
+						},
+					},
+				}},
+			},
+			want: &testproto.Event{
+				Changed: &testproto.Event_Profile{Profile: &testproto.Profile{
+					ArrayOfArrayOfSizes: []*testproto.ArrayOfSizes{
+						{
+							ArrayOfSizes: []*testproto.Size{
+								{
+									Size: 100,
+								},
+								{
+									Size: 110,
+								},
+								{
+									Size: 120,
+								},
+							},
+						},
+					},
+				}},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			Filter(tt.msg, tt.paths)
+			if !proto.Equal(tt.msg, tt.want) {
+				t.Errorf("msg %v, want %v", tt.msg, tt.want)
+			}
+		})
+	}
+}
+
 func TestPrune(t *testing.T) {
 	tests := []struct {
 		name  string
