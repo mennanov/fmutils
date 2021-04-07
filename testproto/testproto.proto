@@ -23,10 +23,22 @@ message Dimensions {
   int32 height = 2;
 }
 
+message Size {
+  int64 size = 1;
+}
+
+message ArrayOfSizes {
+  repeated Size array_of_sizes = 1;
+}
+
 message Profile {
   User user = 1;
   Photo photo = 2;
   repeated int64 login_timestamps = 3;
+  repeated int64 array_of_natives = 4;
+  Size size = 5;
+  repeated Size array_of_sizes = 6;
+  repeated ArrayOfSizes array_of_array_of_sizes = 7;
 }
 
 message UpdateProfileRequest {
