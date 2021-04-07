@@ -545,6 +545,108 @@ func TestPrune(t *testing.T) {
 				}},
 			},
 		},
+		{
+			name:  "mask with repeated nested fields clears the listed fields",
+			paths: []string{"profile.gallery.photo_id", "profile.gallery.dimensions.height"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{
+					Profile: &testproto.Profile{
+						Photo: &testproto.Photo{
+							PhotoId: 4,
+							Path:    "photo path",
+						},
+						Gallery: []*testproto.Photo{
+							{
+								PhotoId: 1,
+								Path:    "path 1",
+								Dimensions: &testproto.Dimensions{
+									Width:  100,
+									Height: 200,
+								},
+							},
+							{
+								PhotoId: 2,
+								Path:    "path 2",
+								Dimensions: &testproto.Dimensions{
+									Width:  300,
+									Height: 400,
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{
+					Profile: &testproto.Profile{
+						Photo: &testproto.Photo{
+							PhotoId: 4,
+							Path:    "photo path",
+						},
+						Gallery: []*testproto.Photo{
+							{
+								Path: "path 1",
+								Dimensions: &testproto.Dimensions{
+									Width: 100,
+								},
+							},
+							{
+								Path: "path 2",
+								Dimensions: &testproto.Dimensions{
+									Width: 300,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:  "mask with repeated field clears the listed field only",
+			paths: []string{"profile.gallery"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{
+					Profile: &testproto.Profile{
+						Photo: &testproto.Photo{
+							PhotoId: 4,
+							Path:    "photo path",
+						},
+						Gallery: []*testproto.Photo{
+							{
+								PhotoId: 1,
+								Path:    "path 1",
+								Dimensions: &testproto.Dimensions{
+									Width:  100,
+									Height: 200,
+								},
+							},
+							{
+								PhotoId: 2,
+								Path:    "path 2",
+								Dimensions: &testproto.Dimensions{
+									Width:  300,
+									Height: 400,
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{
+					Profile: &testproto.Profile{
+						Photo: &testproto.Photo{
+							PhotoId: 4,
+							Path:    "photo path",
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

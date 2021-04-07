@@ -107,11 +107,19 @@ func (mask NestedMask) Prune(msg proto.Message) {
 	rft.Range(func(fd protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
 		m, ok := mask[string(fd.Name())]
 		if ok {
-			if fd.Kind() == protoreflect.MessageKind && len(m) != 0 {
-				m.Prune(rft.Get(fd).Message().Interface())
+			if len(m) == 0 {
+				rft.Clear(fd)
 				return true
 			}
-			rft.Clear(fd)
+
+			if fd.IsList() {
+				list := rft.Get(fd).List()
+				for i := 0; i < list.Len(); i++ {
+					m.Prune(list.Get(i).Message().Interface())
+				}
+			} else if fd.Kind() == protoreflect.MessageKind {
+				m.Prune(rft.Get(fd).Message().Interface())
+			}
 		}
 		return true
 	})
