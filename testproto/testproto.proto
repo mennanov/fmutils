@@ -27,6 +27,7 @@ message Profile {
   User user = 1;
   Photo photo = 2;
   repeated int64 login_timestamps = 3;
+  repeated Photo gallery = 4;
 }
 
 message UpdateProfileRequest {

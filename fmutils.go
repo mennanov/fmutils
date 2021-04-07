@@ -73,7 +73,16 @@ func (mask NestedMask) Filter(msg proto.Message) {
 	rft.Range(func(fd protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
 		m, ok := mask[string(fd.Name())]
 		if ok {
-			if fd.Kind() == protoreflect.MessageKind {
+			if len(m) == 0 {
+				return true
+			}
+
+			if fd.IsList() {
+				list := rft.Get(fd).List()
+				for i := 0; i < list.Len(); i++ {
+					m.Filter(list.Get(i).Message().Interface())
+				}
+			} else if fd.Kind() == protoreflect.MessageKind {
 				m.Filter(rft.Get(fd).Message().Interface())
 			}
 		} else {
