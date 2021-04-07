@@ -348,7 +348,7 @@ func TestFilterWithStructs(t *testing.T) {
 			},
 		},
 		{
-			name:  "test filter with ARRAY of structs (Size) containing a native - int",
+			name:  "test filter with an ARRAY of structs (Size) containing a native - int",
 			paths: []string{"profile.array_of_sizes"},
 			msg: &testproto.Event{
 				EventId: 1,
@@ -396,7 +396,7 @@ func TestFilterWithStructs(t *testing.T) {
 			},
 		},
 		{
-			name:  "test filter with ARRAY OF ARRAY of structs (Size) containing a native - int",
+			name:  "test filter with an ARRAY OF ARRAYS of structs (Size) containing a native - int",
 			paths: []string{"profile.array_of_array_of_sizes"},
 			msg: &testproto.Event{
 				EventId: 1,
