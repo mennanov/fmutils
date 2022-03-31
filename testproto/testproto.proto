@@ -23,11 +23,16 @@ message Dimensions {
   int32 height = 2;
 }
 
+message Attribute {
+    map<string, string> tags = 1;
+}
+
 message Profile {
   User user = 1;
   Photo photo = 2;
   repeated int64 login_timestamps = 3;
   repeated Photo gallery = 4;
+  map<string, Attribute> attributes = 5;
 }
 
 message UpdateProfileRequest {
