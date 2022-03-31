@@ -371,6 +371,60 @@ func TestFilter(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "mask with map field keeps the listed field only",
+			paths: []string{"profile.attributes.a1", "profile.attributes.a2.tags.t2", "profile.attributes.aNonExistant"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{
+					Profile: &testproto.Profile{
+						Attributes: map[string]*testproto.Attribute{
+							"a1": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t2": "2",
+									"t3": "3",
+								},
+							},
+							"a2": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t2": "2",
+									"t3": "3",
+								},
+							},
+							"a3": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t2": "2",
+									"t3": "3",
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &testproto.Event{
+				Changed: &testproto.Event_Profile{
+					Profile: &testproto.Profile{
+						Attributes: map[string]*testproto.Attribute{
+							"a1": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t2": "2",
+									"t3": "3",
+								},
+							},
+							"a2": {
+								Tags: map[string]string{
+									"t2": "2",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -642,6 +696,62 @@ func TestPrune(t *testing.T) {
 						Photo: &testproto.Photo{
 							PhotoId: 4,
 							Path:    "photo path",
+						},
+					},
+				},
+			},
+		},
+		{
+			name:  "mask with map field prunes the listed field",
+			paths: []string{"profile.attributes.a1", "profile.attributes.a2.tags.t2", "profile.attributes.aNonExistant"},
+			msg: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{
+					Profile: &testproto.Profile{
+						Attributes: map[string]*testproto.Attribute{
+							"a1": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t2": "2",
+									"t3": "3",
+								},
+							},
+							"a2": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t2": "2",
+									"t3": "3",
+								},
+							},
+							"a3": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t2": "2",
+									"t3": "3",
+								},
+							},
+						},
+					},
+				},
+			},
+			want: &testproto.Event{
+				EventId: 1,
+				Changed: &testproto.Event_Profile{
+					Profile: &testproto.Profile{
+						Attributes: map[string]*testproto.Attribute{
+							"a2": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t3": "3",
+								},
+							},
+							"a3": {
+								Tags: map[string]string{
+									"t1": "1",
+									"t2": "2",
+									"t3": "3",
+								},
+							},
 						},
 					},
 				},
