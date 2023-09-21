@@ -150,3 +150,30 @@ func (mask NestedMask) Prune(msg proto.Message) {
 		return true
 	})
 }
+
+// Override - overrides all of the fields listed in paths in dest msg using the values from the src msg.
+func (mask NestedMask) Override(src, dest proto.Message) {
+	srcRfl := src.ProtoReflect()
+	destRfl := dest.ProtoReflect()
+
+	for k, v := range mask {
+		srcFD := srcRfl.Descriptor().Fields().ByName(protoreflect.Name(k))
+		destFD := destRfl.Descriptor().Fields().ByName(protoreflect.Name(k))
+		if srcFD == nil || destFD == nil {
+			continue
+		}
+
+		// Leaf mask -> copy value from src to dest
+		if len(v) == 0 {
+			if srcFD.FullName() == destFD.FullName() {
+				destRfl.Set(srcFD, destRfl.Get(destFD))
+			}
+		} else {
+			// If dest field is nil
+			if !destRfl.Get(destFD).Message().IsValid() {
+				destRfl.Set(destFD, protoreflect.ValueOf(destRfl.Get(destFD).Message().New()))
+			}
+			v.Override(srcRfl.Get(srcFD).Message().Interface(), destRfl.Get(destFD).Message().Interface())
+		}
+	}
+}
