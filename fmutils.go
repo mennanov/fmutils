@@ -153,27 +153,28 @@ func (mask NestedMask) Prune(msg proto.Message) {
 
 // Override - overrides all of the fields listed in paths in dest msg using the values from the src msg.
 func (mask NestedMask) Override(src, dest proto.Message) {
-	srcRfl := src.ProtoReflect()
-	destRfl := dest.ProtoReflect()
+	mask.override(src.ProtoReflect(), dest.ProtoReflect())
+}
 
+func (mask NestedMask) override(src, dest protoreflect.Message) {
 	for k, v := range mask {
-		srcFD := srcRfl.Descriptor().Fields().ByName(protoreflect.Name(k))
-		destFD := destRfl.Descriptor().Fields().ByName(protoreflect.Name(k))
+		srcFD := src.Descriptor().Fields().ByName(protoreflect.Name(k))
+		destFD := dest.Descriptor().Fields().ByName(protoreflect.Name(k))
 		if srcFD == nil || destFD == nil {
 			continue
 		}
 
 		// Leaf mask -> copy value from src to dest
 		if len(v) == 0 {
-			if srcFD.FullName() == destFD.FullName() {
-				destRfl.Set(srcFD, destRfl.Get(destFD))
+			if srcFD.Kind() == destFD.Kind() { // TODO: Full type equality check
+				dest.Set(destFD, src.Get(srcFD))
 			}
 		} else {
 			// If dest field is nil
-			if !destRfl.Get(destFD).Message().IsValid() {
-				destRfl.Set(destFD, protoreflect.ValueOf(destRfl.Get(destFD).Message().New()))
+			if !dest.Get(destFD).Message().IsValid() {
+				dest.Set(destFD, protoreflect.ValueOf(dest.Get(destFD).Message().New()))
 			}
-			v.Override(srcRfl.Get(srcFD).Message().Interface(), destRfl.Get(destFD).Message().Interface())
+			v.override(src.Get(srcFD).Message(), dest.Get(destFD).Message())
 		}
 	}
 }
