@@ -21,6 +21,11 @@ func Prune(msg proto.Message, paths []string) {
 	NestedMaskFromPaths(paths).Prune(msg)
 }
 
+// Override - overrides all of the fields listed in paths in dest msg using the values from src msg.
+func Override(src, dest proto.Message, paths []string) {
+	NestedMaskFromPaths(paths).Override(src, dest)
+}
+
 // NestedMask represents a field mask as a recursive map.
 type NestedMask map[string]NestedMask
 
@@ -169,7 +174,7 @@ func (mask NestedMask) override(src, dest protoreflect.Message) {
 			if srcFD.Kind() == destFD.Kind() { // TODO: Full type equality check
 				dest.Set(destFD, src.Get(srcFD))
 			}
-		} else {
+		} else if srcFD.Kind() == protoreflect.MessageKind {
 			// If dest field is nil
 			if !dest.Get(destFD).Message().IsValid() {
 				dest.Set(destFD, protoreflect.ValueOf(dest.Get(destFD).Message().New()))

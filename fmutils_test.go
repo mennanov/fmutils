@@ -768,6 +768,78 @@ func TestPrune(t *testing.T) {
 	}
 }
 
+func TestOverride(t *testing.T) {
+	tests := []struct {
+		name  string
+		paths []string
+		src   proto.Message
+		dest  proto.Message
+		want  proto.Message
+	}{
+		{
+			name:  "profile override",
+			paths: []string{"user.user_id", "photo.path", "photo.dimensions.width", "login_timestamps", "attributes"},
+			src: &testproto.Profile{
+				User: &testproto.User{
+					UserId: 567,
+					Name:   "different-name",
+				},
+				Photo: &testproto.Photo{
+					PhotoId: 1234,
+					Path:    "path",
+					Dimensions: &testproto.Dimensions{
+						Width: 100,
+					},
+				},
+				LoginTimestamps: []int64{1, 2},
+				Attributes: map[string]*testproto.Attribute{
+					"key-1": {
+						Tags: map[string]string{
+							"tag": "val",
+						},
+					},
+				},
+			},
+			dest: &testproto.Profile{
+				User: &testproto.User{
+					Name: "name",
+				},
+				LoginTimestamps: []int64{3},
+				Attributes:      make(map[string]*testproto.Attribute),
+			},
+			want: &testproto.Profile{
+				User: &testproto.User{
+					UserId: 567,
+					Name:   "name",
+				},
+				Photo: &testproto.Photo{
+					Path: "path",
+					Dimensions: &testproto.Dimensions{
+						Width: 100,
+					},
+				},
+				LoginTimestamps: []int64{1, 2},
+				Attributes: map[string]*testproto.Attribute{
+					"key-1": {
+						Tags: map[string]string{
+							"tag": "val",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			Override(tt.src, tt.dest, tt.paths)
+			if !proto.Equal(tt.dest, tt.want) {
+				t.Errorf("dest %v, want %v", tt.dest, tt.want)
+			}
+		})
+	}
+}
+
 func BenchmarkNestedMaskFromPaths(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		NestedMaskFromPaths([]string{"aaa.bbb.c.d.e.f", "aa.b.cc.ddddddd", "e", "f", "g.h.i.j.k"})
