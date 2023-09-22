@@ -171,8 +171,8 @@ func (mask NestedMask) override(src, dest protoreflect.Message) {
 
 		// Leaf mask -> copy value from src to dest
 		if len(v) == 0 {
-			val := src.Get(srcFD)
 			if srcFD.Kind() == destFD.Kind() { // TODO: Full type equality check
+				val := src.Get(srcFD)
 				if isValid(srcFD, val) {
 					dest.Set(destFD, val)
 				} else {

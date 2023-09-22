@@ -1,7 +1,6 @@
 package fmutils
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -833,16 +832,22 @@ func TestOverride(t *testing.T) {
 		},
 		{
 			name:  "empty message/map/list fields",
-			paths: []string{"user", "attributes", "login_timestamps"},
+			paths: []string{"user", "photo.photo_id", "attributes", "login_timestamps"},
 
 			src: &testproto.Profile{
-				User:            nil,
-				Attributes:      make(map[string]*testproto.Attribute),
-				LoginTimestamps: make([]int64, 0),
+				User: nil, // Empty message
+				Photo: &testproto.Photo{
+					PhotoId: 0, // Empty scalar
+				},
+				Attributes:      make(map[string]*testproto.Attribute), // Empty map
+				LoginTimestamps: make([]int64, 0),                      // Empty list
 			},
 			dest: &testproto.Profile{
 				User: &testproto.User{
 					Name: "name",
+				},
+				Photo: &testproto.Photo{
+					PhotoId: 1234,
 				},
 				Attributes: map[string]*testproto.Attribute{
 					"attribute": {
@@ -852,14 +857,32 @@ func TestOverride(t *testing.T) {
 					},
 				},
 				LoginTimestamps: []int64{1, 2, 3},
+				Gallery: []*testproto.Photo{
+					{
+						PhotoId: 567,
+						Path:    "path",
+					},
+				},
 			},
-			want: &testproto.Profile{},
+			want: &testproto.Profile{
+				User: nil, // Empty message
+				Photo: &testproto.Photo{
+					PhotoId: 0, // Empty scalar
+				},
+				Attributes:      make(map[string]*testproto.Attribute), // Empty map
+				LoginTimestamps: make([]int64, 0),                      // Empty list
+				Gallery: []*testproto.Photo{
+					{
+						PhotoId: 567,
+						Path:    "path",
+					},
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			Override(tt.src, tt.dest, tt.paths)
-			fmt.Println(tt.name, tt.dest)
 			if !proto.Equal(tt.dest, tt.want) {
 				t.Errorf("dest %v, want %v", tt.dest, tt.want)
 			}
