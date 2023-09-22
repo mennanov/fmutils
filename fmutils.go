@@ -182,7 +182,7 @@ func (mask NestedMask) override(src, dest protoreflect.Message) {
 		} else if srcFD.Kind() == protoreflect.MessageKind {
 			// If dest field is nil
 			if !dest.Get(destFD).Message().IsValid() {
-				dest.Set(destFD, defaultValue(destFD, dest.Get(destFD)))
+				dest.Set(destFD, protoreflect.ValueOf(dest.Get(destFD).Message().New()))
 			}
 			v.override(src.Get(srcFD).Message(), dest.Get(destFD).Message())
 		}
@@ -198,15 +198,4 @@ func isValid(fd protoreflect.FieldDescriptor, val protoreflect.Value) bool {
 		return val.Message().IsValid()
 	}
 	return true
-}
-
-func defaultValue(fd protoreflect.FieldDescriptor, val protoreflect.Value) protoreflect.Value {
-	if fd.IsMap() {
-		return fd.Default()
-	} else if fd.IsList() {
-		return fd.Default()
-	} else if fd.Message() != nil {
-		return protoreflect.ValueOfMessage(val.Message().New())
-	}
-	return fd.Default()
 }
