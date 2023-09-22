@@ -171,15 +171,42 @@ func (mask NestedMask) override(src, dest protoreflect.Message) {
 
 		// Leaf mask -> copy value from src to dest
 		if len(v) == 0 {
+			val := src.Get(srcFD)
 			if srcFD.Kind() == destFD.Kind() { // TODO: Full type equality check
-				dest.Set(destFD, src.Get(srcFD))
+				if isValid(srcFD, val) {
+					dest.Set(destFD, val)
+				} else {
+					dest.Clear(destFD)
+				}
 			}
 		} else if srcFD.Kind() == protoreflect.MessageKind {
 			// If dest field is nil
 			if !dest.Get(destFD).Message().IsValid() {
-				dest.Set(destFD, protoreflect.ValueOf(dest.Get(destFD).Message().New()))
+				dest.Set(destFD, defaultValue(destFD, dest.Get(destFD)))
 			}
 			v.override(src.Get(srcFD).Message(), dest.Get(destFD).Message())
 		}
 	}
+}
+
+func isValid(fd protoreflect.FieldDescriptor, val protoreflect.Value) bool {
+	if fd.IsMap() {
+		return val.Map().IsValid()
+	} else if fd.IsList() {
+		return val.List().IsValid()
+	} else if fd.Message() != nil {
+		return val.Message().IsValid()
+	}
+	return true
+}
+
+func defaultValue(fd protoreflect.FieldDescriptor, val protoreflect.Value) protoreflect.Value {
+	if fd.IsMap() {
+		return fd.Default()
+	} else if fd.IsList() {
+		return fd.Default()
+	} else if fd.Message() != nil {
+		return protoreflect.ValueOfMessage(val.Message().New())
+	}
+	return fd.Default()
 }

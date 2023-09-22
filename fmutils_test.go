@@ -1,6 +1,7 @@
 package fmutils
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -777,8 +778,10 @@ func TestOverride(t *testing.T) {
 		want  proto.Message
 	}{
 		{
-			name:  "profile override",
-			paths: []string{"user.user_id", "photo.path", "photo.dimensions.width", "login_timestamps", "attributes"},
+			name: "profile override",
+			paths: []string{
+				"user.user_id", "photo.path", "photo.dimensions.width", "login_timestamps", "attributes",
+			},
 			src: &testproto.Profile{
 				User: &testproto.User{
 					UserId: 567,
@@ -828,11 +831,35 @@ func TestOverride(t *testing.T) {
 				},
 			},
 		},
-	}
+		{
+			name:  "empty message/map/list fields",
+			paths: []string{"user", "attributes", "login_timestamps"},
 
+			src: &testproto.Profile{
+				User:            nil,
+				Attributes:      make(map[string]*testproto.Attribute),
+				LoginTimestamps: make([]int64, 0),
+			},
+			dest: &testproto.Profile{
+				User: &testproto.User{
+					Name: "name",
+				},
+				Attributes: map[string]*testproto.Attribute{
+					"attribute": {
+						Tags: map[string]string{
+							"tag": "val",
+						},
+					},
+				},
+				LoginTimestamps: []int64{1, 2, 3},
+			},
+			want: &testproto.Profile{},
+		},
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			Override(tt.src, tt.dest, tt.paths)
+			fmt.Println(tt.name, tt.dest)
 			if !proto.Equal(tt.dest, tt.want) {
 				t.Errorf("dest %v, want %v", tt.dest, tt.want)
 			}
