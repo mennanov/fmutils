@@ -768,7 +768,7 @@ func TestPrune(t *testing.T) {
 	}
 }
 
-func TestOverride(t *testing.T) {
+func TestOverwrite(t *testing.T) {
 	tests := []struct {
 		name  string
 		paths []string
@@ -777,9 +777,9 @@ func TestOverride(t *testing.T) {
 		want  proto.Message
 	}{
 		{
-			name: "profile override",
+			name: "overwrite scalar/message/map/list",
 			paths: []string{
-				"user.user_id", "photo.path", "photo.dimensions.width", "login_timestamps", "attributes",
+				"user.user_id", "photo", "login_timestamps", "attributes",
 			},
 			src: &testproto.Profile{
 				User: &testproto.User{
@@ -787,27 +787,21 @@ func TestOverride(t *testing.T) {
 					Name:   "different-name",
 				},
 				Photo: &testproto.Photo{
-					PhotoId: 1234,
-					Path:    "path",
-					Dimensions: &testproto.Dimensions{
-						Width: 100,
-					},
+					Path: "photo-path",
 				},
-				LoginTimestamps: []int64{1, 2},
+				LoginTimestamps: []int64{1, 2, 3},
 				Attributes: map[string]*testproto.Attribute{
-					"key-1": {
-						Tags: map[string]string{
-							"tag": "val",
-						},
-					},
+					"src": {},
 				},
 			},
 			dest: &testproto.Profile{
 				User: &testproto.User{
 					Name: "name",
 				},
-				LoginTimestamps: []int64{3},
-				Attributes:      make(map[string]*testproto.Attribute),
+				LoginTimestamps: []int64{4},
+				Attributes: map[string]*testproto.Attribute{
+					"dest": {},
+				},
 			},
 			want: &testproto.Profile{
 				User: &testproto.User{
@@ -815,18 +809,28 @@ func TestOverride(t *testing.T) {
 					Name:   "name",
 				},
 				Photo: &testproto.Photo{
-					Path: "path",
-					Dimensions: &testproto.Dimensions{
-						Width: 100,
-					},
+					Path: "photo-path",
 				},
-				LoginTimestamps: []int64{1, 2},
+				LoginTimestamps: []int64{1, 2, 3},
 				Attributes: map[string]*testproto.Attribute{
-					"key-1": {
-						Tags: map[string]string{
-							"tag": "val",
-						},
-					},
+					"src": {},
+				},
+			},
+		},
+		{
+			name:  "field inside nil message",
+			paths: []string{"photo.path"},
+			src: &testproto.Profile{
+				Photo: &testproto.Photo{
+					Path: "photo-path",
+				},
+			},
+			dest: &testproto.Profile{
+				Photo: nil,
+			},
+			want: &testproto.Profile{
+				Photo: &testproto.Photo{
+					Path: "photo-path",
 				},
 			},
 		},
@@ -882,7 +886,7 @@ func TestOverride(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Override(tt.src, tt.dest, tt.paths)
+			Overwrite(tt.src, tt.dest, tt.paths)
 			if !proto.Equal(tt.dest, tt.want) {
 				t.Errorf("dest %v, want %v", tt.dest, tt.want)
 			}
