@@ -768,6 +768,132 @@ func TestPrune(t *testing.T) {
 	}
 }
 
+func TestOverwrite(t *testing.T) {
+	tests := []struct {
+		name  string
+		paths []string
+		src   proto.Message
+		dest  proto.Message
+		want  proto.Message
+	}{
+		{
+			name: "overwrite scalar/message/map/list",
+			paths: []string{
+				"user.user_id", "photo", "login_timestamps", "attributes",
+			},
+			src: &testproto.Profile{
+				User: &testproto.User{
+					UserId: 567,
+					Name:   "different-name",
+				},
+				Photo: &testproto.Photo{
+					Path: "photo-path",
+				},
+				LoginTimestamps: []int64{1, 2, 3},
+				Attributes: map[string]*testproto.Attribute{
+					"src": {},
+				},
+			},
+			dest: &testproto.Profile{
+				User: &testproto.User{
+					Name: "name",
+				},
+				LoginTimestamps: []int64{4},
+				Attributes: map[string]*testproto.Attribute{
+					"dest": {},
+				},
+			},
+			want: &testproto.Profile{
+				User: &testproto.User{
+					UserId: 567,
+					Name:   "name",
+				},
+				Photo: &testproto.Photo{
+					Path: "photo-path",
+				},
+				LoginTimestamps: []int64{1, 2, 3},
+				Attributes: map[string]*testproto.Attribute{
+					"src": {},
+				},
+			},
+		},
+		{
+			name:  "field inside nil message",
+			paths: []string{"photo.path"},
+			src: &testproto.Profile{
+				Photo: &testproto.Photo{
+					Path: "photo-path",
+				},
+			},
+			dest: &testproto.Profile{
+				Photo: nil,
+			},
+			want: &testproto.Profile{
+				Photo: &testproto.Photo{
+					Path: "photo-path",
+				},
+			},
+		},
+		{
+			name:  "empty message/map/list fields",
+			paths: []string{"user", "photo.photo_id", "attributes", "login_timestamps"},
+
+			src: &testproto.Profile{
+				User: nil, // Empty message
+				Photo: &testproto.Photo{
+					PhotoId: 0, // Empty scalar
+				},
+				Attributes:      make(map[string]*testproto.Attribute), // Empty map
+				LoginTimestamps: make([]int64, 0),                      // Empty list
+			},
+			dest: &testproto.Profile{
+				User: &testproto.User{
+					Name: "name",
+				},
+				Photo: &testproto.Photo{
+					PhotoId: 1234,
+				},
+				Attributes: map[string]*testproto.Attribute{
+					"attribute": {
+						Tags: map[string]string{
+							"tag": "val",
+						},
+					},
+				},
+				LoginTimestamps: []int64{1, 2, 3},
+				Gallery: []*testproto.Photo{
+					{
+						PhotoId: 567,
+						Path:    "path",
+					},
+				},
+			},
+			want: &testproto.Profile{
+				User: nil, // Empty message
+				Photo: &testproto.Photo{
+					PhotoId: 0, // Empty scalar
+				},
+				Attributes:      make(map[string]*testproto.Attribute), // Empty map
+				LoginTimestamps: make([]int64, 0),                      // Empty list
+				Gallery: []*testproto.Photo{
+					{
+						PhotoId: 567,
+						Path:    "path",
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			Overwrite(tt.src, tt.dest, tt.paths)
+			if !proto.Equal(tt.dest, tt.want) {
+				t.Errorf("dest %v, want %v", tt.dest, tt.want)
+			}
+		})
+	}
+}
+
 func BenchmarkNestedMaskFromPaths(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		NestedMaskFromPaths([]string{"aaa.bbb.c.d.e.f", "aa.b.cc.ddddddd", "e", "f", "g.h.i.j.k"})
