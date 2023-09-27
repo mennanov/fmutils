@@ -18,6 +18,14 @@ fmutils.Filter(protoMessage, []string{"a.b.c", "d"})
 fmutils.Prune(protoMessage, []string{"a.b.c", "d"})
 ```
 
+### Merge protobuf messages with a FieldMask applied
+
+```go
+// Overwrites the fields in the dst from src.
+// Only the fields listed in the field mask will be copied.
+fmutils.Overwrite(src, dst, []string{"a.b.c", "d"})
+```
+
 ### Working with Golang protobuf APIv1
 
 This library uses the [new Go API for protocol buffers](https://blog.golang.org/protobuf-apiv2).
@@ -28,7 +36,8 @@ If your `*.pb.go` files are generated with the old version APIv1 then you have 2
 
 In both cases you'll need to regenerate `*.pb.go` files.
 
-If you decide to stay with APIv1 then you need to use the [`proto.MessageV2`](https://pkg.go.dev/github.com/golang/protobuf@v1.4.3/proto#MessageV2) function like this:
+If you decide to stay with APIv1 then you need to use
+the [`proto.MessageV2`](https://pkg.go.dev/github.com/golang/protobuf@v1.4.3/proto#MessageV2) function like this:
 
 ```go
 import protov1 "github.com/golang/protobuf/proto"
