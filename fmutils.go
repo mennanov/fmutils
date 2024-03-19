@@ -186,9 +186,8 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 			srcMap.Range(func(mk protoreflect.MapKey, mv protoreflect.Value) bool {
 				if mi, ok := submask[mk.String()]; ok {
 					if i, ok := mv.Interface().(protoreflect.Message); ok && len(mi) > 0 {
-						destVal := protoreflect.ValueOf(mv)
-						destMap.Set(mk, destVal)
-						mi.overwrite(i, destVal.Message())
+						destMap.Set(mk, mv)
+						mi.overwrite(i, mv.Message())
 					} else {
 						destMap.Set(mk, mv)
 					}

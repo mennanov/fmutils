@@ -884,6 +884,47 @@ func TestOverwrite(t *testing.T) {
 			},
 		},
 		{
+			name:  "overwrite map with message values",
+			paths: []string{"attributes.src1.tags", "attributes.src2.tags"},
+			src: &testproto.Profile{
+				User: nil,
+				Attributes: map[string]*testproto.Attribute{
+					"src1": {
+						Tags: map[string]string{"key1": "value1", "key2": "value2"},
+					},
+					"src2": {
+						Tags: map[string]string{"key3": "value3"},
+					},
+				},
+			},
+			dest: &testproto.Profile{
+				User: &testproto.User{
+					Name: "name",
+				},
+				Attributes: map[string]*testproto.Attribute{
+					"dest1": {
+						Tags: map[string]string{"key4": "value5"},
+					},
+				},
+			},
+			want: &testproto.Profile{
+				User: &testproto.User{
+					Name: "name",
+				},
+				Attributes: map[string]*testproto.Attribute{
+					"src1": {
+						Tags: map[string]string{"key1": "value1", "key2": "value2"},
+					},
+					"src2": {
+						Tags: map[string]string{"key3": "value3"},
+					},
+					"dest1": {
+						Tags: map[string]string{"key4": "value5"},
+					},
+				},
+			},
+		},
+		{
 			name:  "overwrite repeated message fields",
 			paths: []string{"gallery.path"},
 			src: &testproto.Profile{
