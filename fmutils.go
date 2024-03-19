@@ -170,30 +170,57 @@ func (mask NestedMask) Overwrite(src, dest proto.Message) {
 	mask.overwrite(src.ProtoReflect(), dest.ProtoReflect())
 }
 
-func (mask NestedMask) overwrite(src, dest protoreflect.Message) {
-	for k, v := range mask {
-		srcFD := src.Descriptor().Fields().ByName(protoreflect.Name(k))
-		destFD := dest.Descriptor().Fields().ByName(protoreflect.Name(k))
-		if srcFD == nil || destFD == nil {
-			continue
-		}
-
-		// Leaf mask -> copy value from src to dest
-		if len(v) == 0 {
-			if srcFD.Kind() == destFD.Kind() { // TODO: Full type equality check
-				val := src.Get(srcFD)
-				if isValid(srcFD, val) {
-					dest.Set(destFD, val)
-				} else {
-					dest.Clear(destFD)
+func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
+	for srcFDName, submask := range mask {
+		srcFD := srcRft.Descriptor().Fields().ByName(protoreflect.Name(srcFDName))
+		srcVal := srcRft.Get(srcFD)
+		if len(submask) == 0 {
+			if isValid(srcFD, srcVal) {
+				destRft.Set(srcFD, srcVal)
+			} else {
+				destRft.Clear(srcFD)
+			}
+		} else if srcFD.IsMap() && srcFD.Kind() == protoreflect.MessageKind {
+			srcMap := srcRft.Get(srcFD).Map()
+			destMap := destRft.Get(srcFD).Map()
+			srcMap.Range(func(mk protoreflect.MapKey, mv protoreflect.Value) bool {
+				if mi, ok := submask[mk.String()]; ok {
+					if i, ok := mv.Interface().(protoreflect.Message); ok && len(mi) > 0 {
+						destVal := protoreflect.ValueOf(mv)
+						destMap.Set(mk, destVal)
+						mi.overwrite(i, destVal.Message())
+					} else {
+						destMap.Set(mk, mv)
+					}
 				}
+				return true
+			})
+		} else if srcFD.IsList() && srcFD.Kind() == protoreflect.MessageKind {
+			srcList := srcRft.Get(srcFD).List()
+			destList := destRft.Mutable(srcFD).List()
+			// Truncate anything in dest that exceeds the length of src
+			if srcList.Len() < destList.Len() {
+				destList.Truncate(srcList.Len())
 			}
+			for i := 0; i < srcList.Len(); i++ {
+				srcListItem := srcList.Get(i)
+				var destListItem protoreflect.Message
+				if destList.Len() > i {
+					// Overwrite existing items.
+					destListItem = destList.Get(i).Message()
+				} else {
+					// Append new items to overwrite.
+					destListItem = destList.AppendMutable().Message()
+				}
+				submask.overwrite(srcListItem.Message(), destListItem)
+			}
+
 		} else if srcFD.Kind() == protoreflect.MessageKind {
-			// If dest field is nil
-			if !dest.Get(destFD).Message().IsValid() {
-				dest.Set(destFD, protoreflect.ValueOf(dest.Get(destFD).Message().New()))
+			// If the dest field is nil
+			if !destRft.Get(srcFD).Message().IsValid() {
+				destRft.Set(srcFD, protoreflect.ValueOf(destRft.Get(srcFD).Message().New()))
 			}
-			v.overwrite(src.Get(srcFD).Message(), dest.Get(destFD).Message())
+			submask.overwrite(srcRft.Get(srcFD).Message(), destRft.Get(srcFD).Message())
 		}
 	}
 }
