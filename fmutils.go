@@ -183,14 +183,22 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 		} else if srcFD.IsMap() && srcFD.Kind() == protoreflect.MessageKind {
 			srcMap := srcRft.Get(srcFD).Map()
 			destMap := destRft.Get(srcFD).Map()
+			if !destMap.IsValid() {
+				destRft.Set(srcFD, protoreflect.ValueOf(srcMap))
+				destMap = destRft.Get(srcFD).Map()
+			}
 			srcMap.Range(func(mk protoreflect.MapKey, mv protoreflect.Value) bool {
 				if mi, ok := submask[mk.String()]; ok {
 					if i, ok := mv.Interface().(protoreflect.Message); ok && len(mi) > 0 {
-						destMap.Set(mk, mv)
-						mi.overwrite(i, mv.Message())
+						newVal := protoreflect.ValueOf(i.New())
+						destMap.Set(mk, newVal)
+						mi.overwrite(mv.Message(), newVal.Message())
 					} else {
+
 						destMap.Set(mk, mv)
 					}
+				} else {
+					destMap.Clear(mk)
 				}
 				return true
 			})
