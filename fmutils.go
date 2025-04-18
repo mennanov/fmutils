@@ -1,6 +1,8 @@
 package fmutils
 
 import (
+	"strings"
+
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -33,35 +35,33 @@ func Overwrite(src, dest proto.Message, paths []string) {
 type NestedMask map[string]NestedMask
 
 // NestedMaskFromPaths creates an instance of NestedMask for the given paths.
+//
+// For example ["foo.bar", "foo.baz"] becomes {"foo": {"bar": nil, "baz": nil}}.
 func NestedMaskFromPaths(paths []string) NestedMask {
-	mask := make(NestedMask)
-	for _, path := range paths {
-		curr := mask
-		var letters []rune
-		for _, letter := range path {
-			if letter == '.' {
-				if len(letters) == 0 {
-					continue
-				}
+	var add func(path string, fm NestedMask)
+	add = func(path string, mask NestedMask) {
+		dotIdx := strings.IndexRune(path, '.')
+		if dotIdx == -1 {
+			mask[path] = nil
+		} else {
+			field := path[:dotIdx]
+			if len(field) == 0 {
+				// Invalid input.
+				return
+			}
+			rest := path[dotIdx+1:]
+			nested := mask[field]
+			if nested == nil {
+				nested = make(NestedMask)
+				mask[field] = nested
+			}
+			add(rest, nested)
+		}
+	}
 
-				key := string(letters)
-				c, ok := curr[key]
-				if !ok {
-					c = make(NestedMask)
-					curr[key] = c
-				}
-				curr = c
-				letters = nil
-				continue
-			}
-			letters = append(letters, letter)
-		}
-		if len(letters) != 0 {
-			key := string(letters)
-			if _, ok := curr[key]; !ok {
-				curr[key] = make(NestedMask)
-			}
-		}
+	mask := make(NestedMask)
+	for _, p := range paths {
+		add(p, mask)
 	}
 
 	return mask

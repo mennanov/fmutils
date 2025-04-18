@@ -22,20 +22,20 @@ func Test_NestedMaskFromPaths(t *testing.T) {
 		{
 			name: "no nested fields",
 			args: args{paths: []string{"a", "b", "c"}},
-			want: NestedMask{"a": NestedMask{}, "b": NestedMask{}, "c": NestedMask{}},
+			want: NestedMask{"a": nil, "b": nil, "c": nil},
 		},
 		{
 			name: "with nested fields",
 			args: args{paths: []string{"aaa.bb.c", "dd.e", "f"}},
 			want: NestedMask{
-				"aaa": NestedMask{"bb": NestedMask{"c": NestedMask{}}},
-				"dd":  NestedMask{"e": NestedMask{}},
-				"f":   NestedMask{}},
+				"aaa": NestedMask{"bb": NestedMask{"c": nil}},
+				"dd":  NestedMask{"e": nil},
+				"f":   nil},
 		},
 		{
 			name: "single field",
 			args: args{paths: []string{"a"}},
-			want: NestedMask{"a": NestedMask{}},
+			want: NestedMask{"a": nil},
 		},
 		{
 			name: "empty fields",
@@ -44,7 +44,7 @@ func Test_NestedMaskFromPaths(t *testing.T) {
 		},
 		{
 			name: "invalid input",
-			args: args{paths: []string{".", "..", "..."}},
+			args: args{paths: []string{".", "..", "...", ".a."}},
 			want: NestedMask{},
 		},
 	}
