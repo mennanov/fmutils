@@ -40,6 +40,10 @@ type NestedMask map[string]NestedMask
 func NestedMaskFromPaths(paths []string) NestedMask {
 	var add func(path string, fm NestedMask)
 	add = func(path string, mask NestedMask) {
+		if len(path) == 0 {
+			// Invalid input.
+			return
+		}
 		dotIdx := strings.IndexRune(path, '.')
 		if dotIdx == -1 {
 			mask[path] = nil

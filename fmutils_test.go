@@ -44,7 +44,7 @@ func Test_NestedMaskFromPaths(t *testing.T) {
 		},
 		{
 			name: "invalid input",
-			args: args{paths: []string{".", "..", "...", ".a."}},
+			args: args{paths: []string{".", "..", "...", ".a.", ""}},
 			want: NestedMask{},
 		},
 	}
@@ -104,6 +104,22 @@ func TestFilter(t *testing.T) {
 					},
 				},
 				LoginTimestamps: []int64{1, 2},
+			},
+		},
+		{
+			name:  "path with empty string is ignored",
+			paths: []string{""},
+			msg: &testproto.Profile{
+				User: &testproto.User{
+					UserId: 1,
+					Name:   "user name",
+				},
+			},
+			want: &testproto.Profile{
+				User: &testproto.User{
+					UserId: 1,
+					Name:   "user name",
+				},
 			},
 		},
 		{
