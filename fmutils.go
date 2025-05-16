@@ -179,7 +179,7 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 		srcFD := srcRft.Descriptor().Fields().ByName(protoreflect.Name(srcFDName))
 		srcVal := srcRft.Get(srcFD)
 		if len(submask) == 0 {
-			if isValid(srcFD, srcVal) {
+			if isValid(srcFD, srcVal) && !srcVal.Equal(srcFD.Default()) {
 				destRft.Set(srcFD, srcVal)
 			} else {
 				destRft.Clear(srcFD)
