@@ -1110,6 +1110,35 @@ func TestOverwrite(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "overwrite optional fields with nil",
+			paths: []string{"optional_string", "optional_int"},
+			src: &testproto.Options{
+				OptionalString: nil,
+				OptionalInt:    nil,
+			},
+			dest: &testproto.Options{
+				OptionalString: func(s string) *string { return &s }("optional string"),
+				OptionalInt:    func(n int32) *int32 { return &n }(10),
+			},
+			want: &testproto.Options{
+				OptionalString: nil,
+				OptionalInt:    nil,
+			},
+		},
+		{
+			name:  "overwrite empty optional field with a value",
+			paths: []string{"optional_string", "optional_int"},
+			src: &testproto.Options{
+				OptionalString: func(s string) *string { return &s }("optional string"),
+				OptionalInt:    func(n int32) *int32 { return &n }(10),
+			},
+			dest: &testproto.Options{},
+			want: &testproto.Options{
+				OptionalString: func(s string) *string { return &s }("optional string"),
+				OptionalInt:    func(n int32) *int32 { return &n }(10),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

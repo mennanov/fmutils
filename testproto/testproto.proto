@@ -27,6 +27,11 @@ message Attribute {
     map<string, string> tags = 1;
 }
 
+message Options {
+    optional string optional_string = 1;
+    optional int32 optional_int = 2;
+}
+
 message Profile {
   User user = 1;
   Photo photo = 2;
