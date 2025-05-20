@@ -284,6 +284,8 @@ type Options struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	OptionalString *string                `protobuf:"bytes,1,opt,name=optional_string,json=optionalString,proto3,oneof" json:"optional_string,omitempty"`
 	OptionalInt    *int32                 `protobuf:"varint,2,opt,name=optional_int,json=optionalInt,proto3,oneof" json:"optional_int,omitempty"`
+	OptionalPhoto  *Photo                 `protobuf:"bytes,3,opt,name=optional_photo,json=optionalPhoto,proto3,oneof" json:"optional_photo,omitempty"`
+	OptionalAttr   *Attribute             `protobuf:"bytes,4,opt,name=optional_attr,json=optionalAttr,proto3,oneof" json:"optional_attr,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -330,6 +332,20 @@ func (x *Options) GetOptionalInt() int32 {
 		return *x.OptionalInt
 	}
 	return 0
+}
+
+func (x *Options) GetOptionalPhoto() *Photo {
+	if x != nil {
+		return x.OptionalPhoto
+	}
+	return nil
+}
+
+func (x *Options) GetOptionalAttr() *Attribute {
+	if x != nil {
+		return x.OptionalAttr
+	}
+	return nil
 }
 
 type Profile struct {
@@ -672,12 +688,16 @@ const file_testproto_proto_rawDesc = "" +
 	"\x04tags\x18\x01 \x03(\v2\x1e.testproto.Attribute.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x84\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa7\x02\n" +
 	"\aOptions\x12,\n" +
 	"\x0foptional_string\x18\x01 \x01(\tH\x00R\x0eoptionalString\x88\x01\x01\x12&\n" +
-	"\foptional_int\x18\x02 \x01(\x05H\x01R\voptionalInt\x88\x01\x01B\x12\n" +
+	"\foptional_int\x18\x02 \x01(\x05H\x01R\voptionalInt\x88\x01\x01\x12<\n" +
+	"\x0eoptional_photo\x18\x03 \x01(\v2\x10.testproto.PhotoH\x02R\roptionalPhoto\x88\x01\x01\x12>\n" +
+	"\roptional_attr\x18\x04 \x01(\v2\x14.testproto.AttributeH\x03R\foptionalAttr\x88\x01\x01B\x12\n" +
 	"\x10_optional_stringB\x0f\n" +
-	"\r_optional_int\"\xc6\x02\n" +
+	"\r_optional_intB\x11\n" +
+	"\x0f_optional_photoB\x10\n" +
+	"\x0e_optional_attr\"\xc6\x02\n" +
 	"\aProfile\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.testproto.UserR\x04user\x12&\n" +
 	"\x05photo\x18\x02 \x01(\v2\x10.testproto.PhotoR\x05photo\x12)\n" +
@@ -743,23 +763,25 @@ var file_testproto_proto_goTypes = []any{
 var file_testproto_proto_depIdxs = []int32{
 	3,  // 0: testproto.Photo.dimensions:type_name -> testproto.Dimensions
 	10, // 1: testproto.Attribute.tags:type_name -> testproto.Attribute.TagsEntry
-	1,  // 2: testproto.Profile.user:type_name -> testproto.User
-	2,  // 3: testproto.Profile.photo:type_name -> testproto.Photo
-	2,  // 4: testproto.Profile.gallery:type_name -> testproto.Photo
-	11, // 5: testproto.Profile.attributes:type_name -> testproto.Profile.AttributesEntry
-	6,  // 6: testproto.UpdateProfileRequest.profile:type_name -> testproto.Profile
-	12, // 7: testproto.UpdateProfileRequest.fieldmask:type_name -> google.protobuf.FieldMask
-	1,  // 8: testproto.Event.user:type_name -> testproto.User
-	2,  // 9: testproto.Event.photo:type_name -> testproto.Photo
-	0,  // 10: testproto.Event.status:type_name -> testproto.Status
-	13, // 11: testproto.Event.details:type_name -> google.protobuf.Any
-	6,  // 12: testproto.Event.profile:type_name -> testproto.Profile
-	4,  // 13: testproto.Profile.AttributesEntry.value:type_name -> testproto.Attribute
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	2,  // 2: testproto.Options.optional_photo:type_name -> testproto.Photo
+	4,  // 3: testproto.Options.optional_attr:type_name -> testproto.Attribute
+	1,  // 4: testproto.Profile.user:type_name -> testproto.User
+	2,  // 5: testproto.Profile.photo:type_name -> testproto.Photo
+	2,  // 6: testproto.Profile.gallery:type_name -> testproto.Photo
+	11, // 7: testproto.Profile.attributes:type_name -> testproto.Profile.AttributesEntry
+	6,  // 8: testproto.UpdateProfileRequest.profile:type_name -> testproto.Profile
+	12, // 9: testproto.UpdateProfileRequest.fieldmask:type_name -> google.protobuf.FieldMask
+	1,  // 10: testproto.Event.user:type_name -> testproto.User
+	2,  // 11: testproto.Event.photo:type_name -> testproto.Photo
+	0,  // 12: testproto.Event.status:type_name -> testproto.Status
+	13, // 13: testproto.Event.details:type_name -> google.protobuf.Any
+	6,  // 14: testproto.Event.profile:type_name -> testproto.Profile
+	4,  // 15: testproto.Profile.AttributesEntry.value:type_name -> testproto.Attribute
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_testproto_proto_init() }
