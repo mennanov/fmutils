@@ -1110,6 +1110,81 @@ func TestOverwrite(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "overwrite optional fields with nil",
+			paths: []string{"optional_string", "optional_int", "optional_photo", "optional_attr"},
+			src: &testproto.Options{
+				OptionalString: nil,
+				OptionalInt:    nil,
+				OptionalPhoto:  nil,
+				OptionalAttr:   nil,
+			},
+			dest: &testproto.Options{
+				OptionalString: func(s string) *string { return &s }("optional string"),
+				OptionalInt:    func(n int32) *int32 { return &n }(10),
+				OptionalPhoto: &testproto.Photo{
+					PhotoId: 123,
+					Path:    "test-path",
+					Dimensions: &testproto.Dimensions{
+						Width:  100,
+						Height: 200,
+					},
+				},
+				OptionalAttr: &testproto.Attribute{
+					Tags: map[string]string{
+						"a": "b",
+						"c": "d",
+					},
+				},
+			},
+			want: &testproto.Options{
+				OptionalString: nil,
+				OptionalInt:    nil,
+				OptionalPhoto:  nil,
+				OptionalAttr:   nil,
+			},
+		},
+		{
+			name:  "overwrite empty optional field with a value",
+			paths: []string{"optional_string", "optional_int", "optional_photo", "optional_attr"},
+			src: &testproto.Options{
+				OptionalString: func(s string) *string { return &s }("optional string"),
+				OptionalInt:    func(n int32) *int32 { return &n }(10),
+				OptionalPhoto: &testproto.Photo{
+					PhotoId: 123,
+					Path:    "test-path",
+					Dimensions: &testproto.Dimensions{
+						Width:  100,
+						Height: 200,
+					},
+				},
+				OptionalAttr: &testproto.Attribute{
+					Tags: map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+				},
+			},
+			dest: &testproto.Options{},
+			want: &testproto.Options{
+				OptionalString: func(s string) *string { return &s }("optional string"),
+				OptionalInt:    func(n int32) *int32 { return &n }(10),
+				OptionalPhoto: &testproto.Photo{
+					PhotoId: 123,
+					Path:    "test-path",
+					Dimensions: &testproto.Dimensions{
+						Width:  100,
+						Height: 200,
+					},
+				},
+				OptionalAttr: &testproto.Attribute{
+					Tags: map[string]string{
+						"key1": "value1",
+						"key2": "value2",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
