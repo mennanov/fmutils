@@ -246,3 +246,32 @@ func isValid(fd protoreflect.FieldDescriptor, val protoreflect.Value) bool {
 	}
 	return true
 }
+
+// PathsFromFieldNumbers converts protobuf field numbers to field paths for the given message.
+//
+// This function takes a protobuf message and a list of field numbers, and
+// returns a slice of field paths (field names) corresponding to those numbers.
+//
+// Field numbers that don't exist in the message descriptor are skipped.
+//
+// If no field numbers are provided, returns nil.
+//
+// Example:
+//
+//	// For a message with fields: name (field 1), age (field 2), address (field 3)
+//	paths := PathsFromFieldNumbers(msg, 1, 2)
+//	// Returns: ["name", "age"]
+func PathsFromFieldNumbers(msg proto.Message, fieldNumbers ...int) []string {
+	if len(fieldNumbers) == 0 {
+		return nil
+	}
+	paths := make([]string, 0, len(fieldNumbers))
+	descriptor := msg.ProtoReflect().Descriptor()
+	for _, n := range fieldNumbers {
+		field := descriptor.Fields().ByNumber(protoreflect.FieldNumber(n))
+		if field != nil {
+			paths = append(paths, field.TextName())
+		}
+	}
+	return paths
+}
