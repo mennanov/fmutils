@@ -2,6 +2,7 @@ package fmutils
 
 import (
 	"reflect"
+	"slices"
 	"testing"
 
 	"google.golang.org/protobuf/proto"
@@ -1191,6 +1192,68 @@ func TestOverwrite(t *testing.T) {
 			Overwrite(tt.src, tt.dest, tt.paths)
 			if !proto.Equal(tt.dest, tt.want) {
 				t.Errorf("dest %v, want %v", tt.dest, tt.want)
+			}
+		})
+	}
+}
+
+func TestFromFieldNumbers(t *testing.T) {
+	tests := []struct {
+		name         string
+		msg          proto.Message
+		fieldNumbers []int
+		want         []string
+	}{
+		{
+			name:         "empty field numbers",
+			msg:          &testproto.User{},
+			fieldNumbers: []int{},
+			want:         nil,
+		},
+		{
+			name:         "single field number",
+			msg:          &testproto.User{},
+			fieldNumbers: []int{1},
+			want:         []string{"user_id"},
+		},
+		{
+			name:         "multiple field numbers",
+			msg:          &testproto.User{},
+			fieldNumbers: []int{1, 2},
+			want:         []string{"user_id", "name"},
+		},
+		{
+			name:         "field numbers with Profile",
+			msg:          &testproto.Profile{},
+			fieldNumbers: []int{1, 2, 3},
+			want:         []string{"user", "photo", "login_timestamps"},
+		},
+		{
+			name:         "non-existent field number",
+			msg:          &testproto.User{},
+			fieldNumbers: []int{999},
+			want:         []string{},
+		},
+		{
+			name:         "mixed valid and invalid field numbers",
+			msg:          &testproto.User{},
+			fieldNumbers: []int{1, 999, 2},
+			want:         []string{"user_id", "name"},
+		},
+		{
+			name:         "duplicate field numbers",
+			msg:          &testproto.User{},
+			fieldNumbers: []int{1, 1, 2},
+			want:         []string{"user_id", "user_id", "name"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := PathsFromFieldNumbers(tt.msg, tt.fieldNumbers...)
+			slices.Sort(got)
+			slices.Sort(tt.want)
+			if !slices.Equal(got, tt.want) {
+				t.Errorf("PathsFromFieldNumbers() = %v, want %v", got, tt.want)
 			}
 		})
 	}

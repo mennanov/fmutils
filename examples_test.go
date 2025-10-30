@@ -85,3 +85,20 @@ func ExampleFilter_reuse_mask() {
 	fmt.Println(users)
 	// Output: [name:"name 1" name:"name 2"]
 }
+
+// ExamplePathsFromFieldNumbers illustrates how to convert protobuf field numbers to field paths.
+// This is useful when you have field numbers from the protobuf schema and need to convert them
+// to field paths for use with field masks.
+func ExamplePathsFromFieldNumbers() {
+	user := &testproto.User{}
+
+	// Convert field numbers to field paths.
+	// Field 1 is "user_id", field 2 is "name"
+	paths := fmutils.PathsFromFieldNumbers(user, 1, 2)
+	fmt.Println("Field numbers:", []int{1, 2})
+	fmt.Println("Paths:", paths)
+
+	// Output:
+	// Field numbers: [1 2]
+	// Paths: [user_id name]
+}
