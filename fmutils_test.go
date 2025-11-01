@@ -1259,6 +1259,122 @@ func TestFromFieldNumbers(t *testing.T) {
 	}
 }
 
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		name    string
+		msg     proto.Message
+		paths   []string
+		wantErr bool
+	}{
+		{
+			name: "empty mask",
+			msg:  &testproto.Profile{},
+		},
+		{
+			name: "happy path",
+			msg:  &testproto.Profile{},
+			paths: []string{
+				"user",
+				"photo.path",
+				"login_timestamps",
+				"gallery.photo_id",
+				"gallery.dimensions.width",
+				"attributes.tags",
+			},
+		},
+		{
+			name: "happy path with oneof",
+			msg:  &testproto.Event{},
+			paths: []string{
+				"user",
+				"photo.photo_id",
+				"photo.dimensions.height",
+				"details",
+				"profile.login_timestamps",
+				"profile.attributes.tags",
+			},
+		},
+		{
+			name: "happy path with optional fields",
+			msg:  &testproto.Options{},
+			paths: []string{
+				"optional_string",
+				"optional_photo.photo_id",
+				"optional_photo.dimensions.height",
+				"optional_attr.tags",
+			},
+		},
+		{
+			name:    "incorrect root field",
+			msg:     &testproto.Profile{},
+			paths:   []string{"invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect nested field",
+			msg:     &testproto.Profile{},
+			paths:   []string{"user.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect repeated field",
+			msg:     &testproto.Profile{},
+			paths:   []string{"gallery.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect nested repeated field",
+			msg:     &testproto.Profile{},
+			paths:   []string{"gallery.dimensions.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect map field",
+			msg:     &testproto.Profile{},
+			paths:   []string{"attributes.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect map field",
+			msg:     &testproto.Profile{},
+			paths:   []string{"attributes.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect field inside oneof",
+			msg:     &testproto.Event{},
+			paths:   []string{"user.gallery.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect repeated field inside oneof",
+			msg:     &testproto.Event{},
+			paths:   []string{"profile.gallery.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect map field inside oneof",
+			msg:     &testproto.Event{},
+			paths:   []string{"profile.attributes.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect optional field",
+			msg:     &testproto.Options{},
+			paths:   []string{"optional_photo.invalid"},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := Validate(tt.msg, tt.paths)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("want error: %v, got: %v", tt.wantErr, err)
+			}
+		})
+	}
+}
+
 func BenchmarkNestedMaskFromPaths(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		NestedMaskFromPaths([]string{"aaa.bbb.c.d.e.f", "aa.b.cc.ddddddd", "e", "f", "g.h.i.j.k"})
