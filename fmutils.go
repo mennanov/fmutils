@@ -183,6 +183,9 @@ func (mask NestedMask) Overwrite(src, dest proto.Message) {
 	mask.overwrite(src.ProtoReflect(), dest.ProtoReflect())
 }
 
+// Validate checks if all paths are valid for specified message.
+//
+// Supports scalars, messages, repeated fields, and maps.
 func (m NestedMask) Validate(validationModel proto.Message) error {
 	err := m.validate("", validationModel.ProtoReflect())
 	if err != nil {
