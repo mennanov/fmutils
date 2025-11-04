@@ -1364,6 +1364,24 @@ func TestValidate(t *testing.T) {
 			paths:   []string{"optional_photo.invalid"},
 			wantErr: true,
 		},
+		{
+			name:    "incorrect path for repeated field with scalar value",
+			msg:     &testproto.Profile{},
+			paths:   []string{"login_timestamps.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect path for map field with scalar value",
+			msg:     &testproto.Attribute{},
+			paths:   []string{"tags.invalid"},
+			wantErr: true,
+		},
+		{
+			name:    "incorrect nested path for scalar field",
+			msg:     &testproto.Dimensions{},
+			paths:   []string{"height.invalid"},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
