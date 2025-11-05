@@ -1,6 +1,7 @@
 package fmutils
 
 import (
+	"fmt"
 	"strings"
 
 	"google.golang.org/protobuf/proto"
@@ -29,6 +30,14 @@ func Prune(msg proto.Message, paths []string) {
 // If the same paths are used to process multiple proto messages use NestedMask.Overwrite method directly.
 func Overwrite(src, dest proto.Message, paths []string) {
 	NestedMaskFromPaths(paths).Overwrite(src, dest)
+}
+
+// Validate checks if all paths are valid for specified message
+//
+// This is a handy wrapper for NestedMask.Validate method.
+// If the same paths are used to process multiple proto messages use NestedMask.Validate method directly.
+func Validate(validationModel proto.Message, paths []string) error {
+	return NestedMaskFromPaths(paths).Validate(validationModel)
 }
 
 // NestedMask represents a field mask as a recursive map.
@@ -174,6 +183,18 @@ func (mask NestedMask) Overwrite(src, dest proto.Message) {
 	mask.overwrite(src.ProtoReflect(), dest.ProtoReflect())
 }
 
+// Validate checks if all paths are valid for specified message.
+//
+// Supports scalars, messages, repeated fields, and maps.
+func (m NestedMask) Validate(validationModel proto.Message) error {
+	err := m.validate("", validationModel.ProtoReflect())
+	if err != nil {
+		return fmt.Errorf("invalid mask: %s", err.Error())
+	}
+
+	return nil
+}
+
 func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 	for srcFDName, submask := range mask {
 		srcFD := srcRft.Descriptor().Fields().ByName(protoreflect.Name(srcFDName))
@@ -234,6 +255,58 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 			submask.overwrite(srcRft.Get(srcFD).Message(), destRft.Get(srcFD).Message())
 		}
 	}
+}
+
+func (mask NestedMask) validate(pathPrefix string, msg protoreflect.Message) error {
+	for fieldName, submask := range mask {
+		fieldDesc := msg.Descriptor().Fields().ByName(protoreflect.Name(fieldName))
+		if fieldDesc == nil {
+			return fmt.Errorf("unknown path: '%s'", fullPath(pathPrefix, fieldName))
+		}
+
+		if len(submask) == 0 {
+			continue
+		}
+
+		var nestedMsg protoreflect.Message
+
+		if fieldDesc.IsList() {
+			listVal := msg.Get(fieldDesc).List().NewElement()
+
+			var ok bool
+
+			if nestedMsg, ok = listVal.Interface().(protoreflect.Message); !ok {
+				return fmt.Errorf("'%s': list element isn't message kind", fullPath(pathPrefix, fieldName))
+			}
+		} else if fieldDesc.IsMap() {
+			mapVal := msg.Get(fieldDesc).Map().NewValue()
+
+			var ok bool
+
+			if nestedMsg, ok = mapVal.Interface().(protoreflect.Message); !ok {
+				return fmt.Errorf("'%s': map value isn't message kind", fullPath(pathPrefix, fieldName))
+			}
+		} else if fieldDesc.Kind() == protoreflect.MessageKind {
+			nestedMsg = msg.Get(fieldDesc).Message()
+		} else {
+			return fmt.Errorf("'%s': can't get nested fields", fullPath(pathPrefix, fieldName))
+		}
+
+		err := submask.validate(fullPath(pathPrefix, fieldName), nestedMsg)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func fullPath(pathPrefix, field string) string {
+	if pathPrefix == "" {
+		return field
+	}
+
+	return pathPrefix + "." + field
 }
 
 func isValid(fd protoreflect.FieldDescriptor, val protoreflect.Value) bool {
