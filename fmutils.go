@@ -25,6 +25,7 @@ func Prune(msg proto.Message, paths []string) {
 }
 
 // Overwrite overwrites all the fields listed in paths in the dest msg using values from src msg.
+// Map values are partially merged when the mask addresses nested fields inside the map value.
 //
 // This is a handy wrapper for NestedMask.Overwrite method.
 // If the same paths are used to process multiple proto messages use NestedMask.Overwrite method directly.
@@ -215,11 +216,17 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 			srcMap.Range(func(mk protoreflect.MapKey, mv protoreflect.Value) bool {
 				if mi, ok := submask[mk.String()]; ok {
 					if i, ok := mv.Interface().(protoreflect.Message); ok && len(mi) > 0 {
-						newVal := protoreflect.ValueOf(i.New())
-						destMap.Set(mk, newVal)
-						mi.overwrite(mv.Message(), newVal.Message())
+						// Clone existing dest entry so we don't mutate other fields.
+						var destMsg protoreflect.Message
+						if v := destMap.Get(mk); v.IsValid() && v.Message().IsValid() {
+							destMsg = proto.Clone(v.Message().Interface()).ProtoReflect()
+						} else {
+							destMsg = i.New()
+						}
+						// Store the (cloned/new) message then overwrite only masked fields.
+						destMap.Set(mk, protoreflect.ValueOfMessage(destMsg))
+						mi.overwrite(mv.Message(), destMsg)
 					} else {
-
 						destMap.Set(mk, mv)
 					}
 				} else {
