@@ -27,6 +27,12 @@ message Attribute {
   map<string, string> tags = 1;
 }
 
+message Address {
+  string number = 1;
+  string street = 2;
+  string postal_code = 3;
+}
+
 message Options {
   optional string optional_string = 1;
   optional int32 optional_int = 2;
@@ -40,6 +46,7 @@ message Profile {
   repeated int64 login_timestamps = 3;
   repeated Photo gallery = 4;
   map<string, Attribute> attributes = 5;
+  map<string, Address> addresses_by_name = 6;
 }
 
 message UpdateProfileRequest {
