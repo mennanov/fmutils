@@ -189,7 +189,7 @@ func (mask NestedMask) Overwrite(src, dest proto.Message) {
 func (m NestedMask) Validate(validationModel proto.Message) error {
 	err := m.validate("", validationModel.ProtoReflect())
 	if err != nil {
-		return fmt.Errorf("invalid mask: %s", err.Error())
+		return fmt.Errorf("invalid mask: %w", err)
 	}
 
 	return nil
@@ -261,7 +261,7 @@ func (mask NestedMask) validate(pathPrefix string, msg protoreflect.Message) err
 	for fieldName, submask := range mask {
 		fieldDesc := msg.Descriptor().Fields().ByName(protoreflect.Name(fieldName))
 		if fieldDesc == nil {
-			return fmt.Errorf("unknown path: '%s'", fullPath(pathPrefix, fieldName))
+			return fmt.Errorf("unknown path: %q", fullPath(pathPrefix, fieldName))
 		}
 
 		if len(submask) == 0 {
@@ -276,7 +276,7 @@ func (mask NestedMask) validate(pathPrefix string, msg protoreflect.Message) err
 			var ok bool
 
 			if nestedMsg, ok = listVal.Interface().(protoreflect.Message); !ok {
-				return fmt.Errorf("'%s': list element isn't message kind", fullPath(pathPrefix, fieldName))
+				return fmt.Errorf("%q: list element isn't message kind", fullPath(pathPrefix, fieldName))
 			}
 		} else if fieldDesc.IsMap() {
 			mapVal := msg.Get(fieldDesc).Map().NewValue()
@@ -284,12 +284,12 @@ func (mask NestedMask) validate(pathPrefix string, msg protoreflect.Message) err
 			var ok bool
 
 			if nestedMsg, ok = mapVal.Interface().(protoreflect.Message); !ok {
-				return fmt.Errorf("'%s': map value isn't message kind", fullPath(pathPrefix, fieldName))
+				return fmt.Errorf("%q: map value isn't message kind", fullPath(pathPrefix, fieldName))
 			}
 		} else if fieldDesc.Kind() == protoreflect.MessageKind {
 			nestedMsg = msg.Get(fieldDesc).Message()
 		} else {
-			return fmt.Errorf("'%s': can't get nested fields", fullPath(pathPrefix, fieldName))
+			return fmt.Errorf("%q: can't get nested fields", fullPath(pathPrefix, fieldName))
 		}
 
 		err := submask.validate(fullPath(pathPrefix, fieldName), nestedMsg)
