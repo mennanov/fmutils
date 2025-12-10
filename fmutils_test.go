@@ -1121,8 +1121,8 @@ func TestOverwrite(t *testing.T) {
 				OptionalAttr:   nil,
 			},
 			dest: &testproto.Options{
-				OptionalString: func(s string) *string { return &s }("optional string"),
-				OptionalInt:    func(n int32) *int32 { return &n }(10),
+				OptionalString: proto.String("optional string"),
+				OptionalInt:    proto.Int32(10),
 				OptionalPhoto: &testproto.Photo{
 					PhotoId: 123,
 					Path:    "test-path",
@@ -1149,8 +1149,8 @@ func TestOverwrite(t *testing.T) {
 			name:  "overwrite empty optional field with a value",
 			paths: []string{"optional_string", "optional_int", "optional_photo", "optional_attr"},
 			src: &testproto.Options{
-				OptionalString: func(s string) *string { return &s }("optional string"),
-				OptionalInt:    func(n int32) *int32 { return &n }(10),
+				OptionalString: proto.String("optional string"),
+				OptionalInt:    proto.Int32(10),
 				OptionalPhoto: &testproto.Photo{
 					PhotoId: 123,
 					Path:    "test-path",
@@ -1168,8 +1168,8 @@ func TestOverwrite(t *testing.T) {
 			},
 			dest: &testproto.Options{},
 			want: &testproto.Options{
-				OptionalString: func(s string) *string { return &s }("optional string"),
-				OptionalInt:    func(n int32) *int32 { return &n }(10),
+				OptionalString: proto.String("optional string"),
+				OptionalInt:    proto.Int32(10),
 				OptionalPhoto: &testproto.Photo{
 					PhotoId: 123,
 					Path:    "test-path",
