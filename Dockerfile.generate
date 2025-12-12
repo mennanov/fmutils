@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+FROM golang:1.25-bookworm AS builder
+
+ARG PROTOC_VERSION=31.0
+ARG PROTOC_GEN_GO_VERSION=1.36.6
+
+WORKDIR /src
+
+# Install protoc.
+RUN apt-get update \
+    && apt-get install -y curl unzip \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -sSL -o /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip \
+    && unzip /tmp/protoc.zip -d /usr/local \
+    && rm /tmp/protoc.zip
+
+# Install the Go code generator.
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v${PROTOC_GEN_GO_VERSION}
+
+# Copy the proto and generate the Go output.
+COPY testproto/testproto.proto testproto.proto
+RUN protoc --proto_path=. --go_out=. --go_opt=paths=source_relative testproto.proto
+
+FROM scratch AS artifact
+COPY --from=builder /src/testproto.pb.go /testproto/testproto.pb.go
