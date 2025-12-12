@@ -280,6 +280,66 @@ func (x *Attribute) GetTags() map[string]string {
 	return nil
 }
 
+type Address struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Number        string                 `protobuf:"bytes,1,opt,name=number,proto3" json:"number,omitempty"`
+	Street        string                 `protobuf:"bytes,2,opt,name=street,proto3" json:"street,omitempty"`
+	PostalCode    string                 `protobuf:"bytes,3,opt,name=postal_code,json=postalCode,proto3" json:"postal_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Address) Reset() {
+	*x = Address{}
+	mi := &file_testproto_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Address) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Address) ProtoMessage() {}
+
+func (x *Address) ProtoReflect() protoreflect.Message {
+	mi := &file_testproto_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Address.ProtoReflect.Descriptor instead.
+func (*Address) Descriptor() ([]byte, []int) {
+	return file_testproto_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Address) GetNumber() string {
+	if x != nil {
+		return x.Number
+	}
+	return ""
+}
+
+func (x *Address) GetStreet() string {
+	if x != nil {
+		return x.Street
+	}
+	return ""
+}
+
+func (x *Address) GetPostalCode() string {
+	if x != nil {
+		return x.PostalCode
+	}
+	return ""
+}
+
 type Options struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	OptionalString *string                `protobuf:"bytes,1,opt,name=optional_string,json=optionalString,proto3,oneof" json:"optional_string,omitempty"`
@@ -292,7 +352,7 @@ type Options struct {
 
 func (x *Options) Reset() {
 	*x = Options{}
-	mi := &file_testproto_proto_msgTypes[4]
+	mi := &file_testproto_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -304,7 +364,7 @@ func (x *Options) String() string {
 func (*Options) ProtoMessage() {}
 
 func (x *Options) ProtoReflect() protoreflect.Message {
-	mi := &file_testproto_proto_msgTypes[4]
+	mi := &file_testproto_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -317,7 +377,7 @@ func (x *Options) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Options.ProtoReflect.Descriptor instead.
 func (*Options) Descriptor() ([]byte, []int) {
-	return file_testproto_proto_rawDescGZIP(), []int{4}
+	return file_testproto_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Options) GetOptionalString() string {
@@ -355,13 +415,14 @@ type Profile struct {
 	LoginTimestamps []int64                `protobuf:"varint,3,rep,packed,name=login_timestamps,json=loginTimestamps,proto3" json:"login_timestamps,omitempty"`
 	Gallery         []*Photo               `protobuf:"bytes,4,rep,name=gallery,proto3" json:"gallery,omitempty"`
 	Attributes      map[string]*Attribute  `protobuf:"bytes,5,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	AddressesByName map[string]*Address    `protobuf:"bytes,6,rep,name=addresses_by_name,json=addressesByName,proto3" json:"addresses_by_name,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Profile) Reset() {
 	*x = Profile{}
-	mi := &file_testproto_proto_msgTypes[5]
+	mi := &file_testproto_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -373,7 +434,7 @@ func (x *Profile) String() string {
 func (*Profile) ProtoMessage() {}
 
 func (x *Profile) ProtoReflect() protoreflect.Message {
-	mi := &file_testproto_proto_msgTypes[5]
+	mi := &file_testproto_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -386,7 +447,7 @@ func (x *Profile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Profile.ProtoReflect.Descriptor instead.
 func (*Profile) Descriptor() ([]byte, []int) {
-	return file_testproto_proto_rawDescGZIP(), []int{5}
+	return file_testproto_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Profile) GetUser() *User {
@@ -424,6 +485,13 @@ func (x *Profile) GetAttributes() map[string]*Attribute {
 	return nil
 }
 
+func (x *Profile) GetAddressesByName() map[string]*Address {
+	if x != nil {
+		return x.AddressesByName
+	}
+	return nil
+}
+
 type UpdateProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Profile       *Profile               `protobuf:"bytes,1,opt,name=profile,proto3" json:"profile,omitempty"`
@@ -434,7 +502,7 @@ type UpdateProfileRequest struct {
 
 func (x *UpdateProfileRequest) Reset() {
 	*x = UpdateProfileRequest{}
-	mi := &file_testproto_proto_msgTypes[6]
+	mi := &file_testproto_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -446,7 +514,7 @@ func (x *UpdateProfileRequest) String() string {
 func (*UpdateProfileRequest) ProtoMessage() {}
 
 func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_testproto_proto_msgTypes[6]
+	mi := &file_testproto_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -459,7 +527,7 @@ func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
-	return file_testproto_proto_rawDescGZIP(), []int{6}
+	return file_testproto_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpdateProfileRequest) GetProfile() *Profile {
@@ -486,7 +554,7 @@ type Result struct {
 
 func (x *Result) Reset() {
 	*x = Result{}
-	mi := &file_testproto_proto_msgTypes[7]
+	mi := &file_testproto_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -498,7 +566,7 @@ func (x *Result) String() string {
 func (*Result) ProtoMessage() {}
 
 func (x *Result) ProtoReflect() protoreflect.Message {
-	mi := &file_testproto_proto_msgTypes[7]
+	mi := &file_testproto_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -511,7 +579,7 @@ func (x *Result) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Result.ProtoReflect.Descriptor instead.
 func (*Result) Descriptor() ([]byte, []int) {
-	return file_testproto_proto_rawDescGZIP(), []int{7}
+	return file_testproto_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Result) GetData() []byte {
@@ -545,7 +613,7 @@ type Event struct {
 
 func (x *Event) Reset() {
 	*x = Event{}
-	mi := &file_testproto_proto_msgTypes[8]
+	mi := &file_testproto_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -557,7 +625,7 @@ func (x *Event) String() string {
 func (*Event) ProtoMessage() {}
 
 func (x *Event) ProtoReflect() protoreflect.Message {
-	mi := &file_testproto_proto_msgTypes[8]
+	mi := &file_testproto_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -570,7 +638,7 @@ func (x *Event) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Event.ProtoReflect.Descriptor instead.
 func (*Event) Descriptor() ([]byte, []int) {
-	return file_testproto_proto_rawDescGZIP(), []int{8}
+	return file_testproto_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Event) GetEventId() int64 {
@@ -688,7 +756,12 @@ const file_testproto_proto_rawDesc = "" +
 	"\x04tags\x18\x01 \x03(\v2\x1e.testproto.Attribute.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa7\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"Z\n" +
+	"\aAddress\x12\x16\n" +
+	"\x06number\x18\x01 \x01(\tR\x06number\x12\x16\n" +
+	"\x06street\x18\x02 \x01(\tR\x06street\x12\x1f\n" +
+	"\vpostal_code\x18\x03 \x01(\tR\n" +
+	"postalCode\"\xa7\x02\n" +
 	"\aOptions\x12,\n" +
 	"\x0foptional_string\x18\x01 \x01(\tH\x00R\x0eoptionalString\x88\x01\x01\x12&\n" +
 	"\foptional_int\x18\x02 \x01(\x05H\x01R\voptionalInt\x88\x01\x01\x12<\n" +
@@ -697,7 +770,7 @@ const file_testproto_proto_rawDesc = "" +
 	"\x10_optional_stringB\x0f\n" +
 	"\r_optional_intB\x11\n" +
 	"\x0f_optional_photoB\x10\n" +
-	"\x0e_optional_attr\"\xc6\x02\n" +
+	"\x0e_optional_attr\"\xf3\x03\n" +
 	"\aProfile\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.testproto.UserR\x04user\x12&\n" +
 	"\x05photo\x18\x02 \x01(\v2\x10.testproto.PhotoR\x05photo\x12)\n" +
@@ -705,10 +778,14 @@ const file_testproto_proto_rawDesc = "" +
 	"\agallery\x18\x04 \x03(\v2\x10.testproto.PhotoR\agallery\x12B\n" +
 	"\n" +
 	"attributes\x18\x05 \x03(\v2\".testproto.Profile.AttributesEntryR\n" +
-	"attributes\x1aS\n" +
+	"attributes\x12S\n" +
+	"\x11addresses_by_name\x18\x06 \x03(\v2'.testproto.Profile.AddressesByNameEntryR\x0faddressesByName\x1aS\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
-	"\x05value\x18\x02 \x01(\v2\x14.testproto.AttributeR\x05value:\x028\x01\"~\n" +
+	"\x05value\x18\x02 \x01(\v2\x14.testproto.AttributeR\x05value:\x028\x01\x1aV\n" +
+	"\x14AddressesByNameEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12(\n" +
+	"\x05value\x18\x02 \x01(\v2\x12.testproto.AddressR\x05value:\x028\x01\"~\n" +
 	"\x14UpdateProfileRequest\x12,\n" +
 	"\aprofile\x18\x01 \x01(\v2\x12.testproto.ProfileR\aprofile\x128\n" +
 	"\tfieldmask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\tfieldmask\";\n" +
@@ -743,45 +820,49 @@ func file_testproto_proto_rawDescGZIP() []byte {
 }
 
 var file_testproto_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_testproto_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_testproto_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_testproto_proto_goTypes = []any{
 	(Status)(0),                   // 0: testproto.Status
 	(*User)(nil),                  // 1: testproto.User
 	(*Photo)(nil),                 // 2: testproto.Photo
 	(*Dimensions)(nil),            // 3: testproto.Dimensions
 	(*Attribute)(nil),             // 4: testproto.Attribute
-	(*Options)(nil),               // 5: testproto.Options
-	(*Profile)(nil),               // 6: testproto.Profile
-	(*UpdateProfileRequest)(nil),  // 7: testproto.UpdateProfileRequest
-	(*Result)(nil),                // 8: testproto.Result
-	(*Event)(nil),                 // 9: testproto.Event
-	nil,                           // 10: testproto.Attribute.TagsEntry
-	nil,                           // 11: testproto.Profile.AttributesEntry
-	(*fieldmaskpb.FieldMask)(nil), // 12: google.protobuf.FieldMask
-	(*anypb.Any)(nil),             // 13: google.protobuf.Any
+	(*Address)(nil),               // 5: testproto.Address
+	(*Options)(nil),               // 6: testproto.Options
+	(*Profile)(nil),               // 7: testproto.Profile
+	(*UpdateProfileRequest)(nil),  // 8: testproto.UpdateProfileRequest
+	(*Result)(nil),                // 9: testproto.Result
+	(*Event)(nil),                 // 10: testproto.Event
+	nil,                           // 11: testproto.Attribute.TagsEntry
+	nil,                           // 12: testproto.Profile.AttributesEntry
+	nil,                           // 13: testproto.Profile.AddressesByNameEntry
+	(*fieldmaskpb.FieldMask)(nil), // 14: google.protobuf.FieldMask
+	(*anypb.Any)(nil),             // 15: google.protobuf.Any
 }
 var file_testproto_proto_depIdxs = []int32{
 	3,  // 0: testproto.Photo.dimensions:type_name -> testproto.Dimensions
-	10, // 1: testproto.Attribute.tags:type_name -> testproto.Attribute.TagsEntry
+	11, // 1: testproto.Attribute.tags:type_name -> testproto.Attribute.TagsEntry
 	2,  // 2: testproto.Options.optional_photo:type_name -> testproto.Photo
 	4,  // 3: testproto.Options.optional_attr:type_name -> testproto.Attribute
 	1,  // 4: testproto.Profile.user:type_name -> testproto.User
 	2,  // 5: testproto.Profile.photo:type_name -> testproto.Photo
 	2,  // 6: testproto.Profile.gallery:type_name -> testproto.Photo
-	11, // 7: testproto.Profile.attributes:type_name -> testproto.Profile.AttributesEntry
-	6,  // 8: testproto.UpdateProfileRequest.profile:type_name -> testproto.Profile
-	12, // 9: testproto.UpdateProfileRequest.fieldmask:type_name -> google.protobuf.FieldMask
-	1,  // 10: testproto.Event.user:type_name -> testproto.User
-	2,  // 11: testproto.Event.photo:type_name -> testproto.Photo
-	0,  // 12: testproto.Event.status:type_name -> testproto.Status
-	13, // 13: testproto.Event.details:type_name -> google.protobuf.Any
-	6,  // 14: testproto.Event.profile:type_name -> testproto.Profile
-	4,  // 15: testproto.Profile.AttributesEntry.value:type_name -> testproto.Attribute
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	12, // 7: testproto.Profile.attributes:type_name -> testproto.Profile.AttributesEntry
+	13, // 8: testproto.Profile.addresses_by_name:type_name -> testproto.Profile.AddressesByNameEntry
+	7,  // 9: testproto.UpdateProfileRequest.profile:type_name -> testproto.Profile
+	14, // 10: testproto.UpdateProfileRequest.fieldmask:type_name -> google.protobuf.FieldMask
+	1,  // 11: testproto.Event.user:type_name -> testproto.User
+	2,  // 12: testproto.Event.photo:type_name -> testproto.Photo
+	0,  // 13: testproto.Event.status:type_name -> testproto.Status
+	15, // 14: testproto.Event.details:type_name -> google.protobuf.Any
+	7,  // 15: testproto.Event.profile:type_name -> testproto.Profile
+	4,  // 16: testproto.Profile.AttributesEntry.value:type_name -> testproto.Attribute
+	5,  // 17: testproto.Profile.AddressesByNameEntry.value:type_name -> testproto.Address
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_testproto_proto_init() }
@@ -789,8 +870,8 @@ func file_testproto_proto_init() {
 	if File_testproto_proto != nil {
 		return
 	}
-	file_testproto_proto_msgTypes[4].OneofWrappers = []any{}
-	file_testproto_proto_msgTypes[8].OneofWrappers = []any{
+	file_testproto_proto_msgTypes[5].OneofWrappers = []any{}
+	file_testproto_proto_msgTypes[9].OneofWrappers = []any{
 		(*Event_User)(nil),
 		(*Event_Photo)(nil),
 		(*Event_Status)(nil),
@@ -803,7 +884,7 @@ func file_testproto_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_testproto_proto_rawDesc), len(file_testproto_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

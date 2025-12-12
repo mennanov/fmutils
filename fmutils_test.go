@@ -901,6 +901,69 @@ func TestOverwrite(t *testing.T) {
 			},
 		},
 		{
+			name: "partial overwrite of message fields inside map",
+			paths: []string{
+				"addresses_by_name.home.number",
+				"addresses_by_name.home.postal_code",
+				"addresses_by_name.work.postal_code",
+				"addresses_by_name.friend",
+			},
+			src: &testproto.Profile{
+				AddressesByName: map[string]*testproto.Address{
+					"home": {
+						Number:     "18",
+						PostalCode: "", // Empty value.
+					},
+					"work": {
+						PostalCode: "69009",
+					},
+					"friend": {
+						Number:     "3",
+						Street:     "Rue de Brest",
+						PostalCode: "29200",
+					},
+					"skip": {
+						Number:     "1",
+						Street:     "Street",
+						PostalCode: "1234",
+					},
+				},
+			},
+			dest: &testproto.Profile{
+				AddressesByName: map[string]*testproto.Address{
+					"home": {
+						Number:     "1",
+						Street:     "Rue de la République",
+						PostalCode: "75007",
+					},
+					"work": {
+						Number:     "2",
+						Street:     "Rue de la Charité",
+						PostalCode: "69002",
+					},
+				},
+			},
+			want: &testproto.Profile{
+				AddressesByName: map[string]*testproto.Address{
+					"home": {
+						Number:     "18",
+						Street:     "Rue de la République",
+						PostalCode: "",
+					},
+					"work": {
+						Number:     "2",
+						Street:     "Rue de la Charité",
+						PostalCode: "69009",
+					},
+					"friend": {
+						Number:     "3",
+						Street:     "Rue de Brest",
+						PostalCode: "29200",
+					},
+				},
+			},
+		},
+		{
 			name:  "overwrite map with message values",
 			paths: []string{"attributes.src1.tags.key1", "attributes.src2"},
 			src: &testproto.Profile{
