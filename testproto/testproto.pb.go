@@ -346,6 +346,7 @@ type Options struct {
 	OptionalInt    *int32                 `protobuf:"varint,2,opt,name=optional_int,json=optionalInt,proto3,oneof" json:"optional_int,omitempty"`
 	OptionalPhoto  *Photo                 `protobuf:"bytes,3,opt,name=optional_photo,json=optionalPhoto,proto3,oneof" json:"optional_photo,omitempty"`
 	OptionalAttr   *Attribute             `protobuf:"bytes,4,opt,name=optional_attr,json=optionalAttr,proto3,oneof" json:"optional_attr,omitempty"`
+	OptionalBool   *bool                  `protobuf:"varint,5,opt,name=optional_bool,json=optionalBool,proto3,oneof" json:"optional_bool,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -406,6 +407,13 @@ func (x *Options) GetOptionalAttr() *Attribute {
 		return x.OptionalAttr
 	}
 	return nil
+}
+
+func (x *Options) GetOptionalBool() bool {
+	if x != nil && x.OptionalBool != nil {
+		return *x.OptionalBool
+	}
+	return false
 }
 
 type Profile struct {
@@ -761,16 +769,18 @@ const file_testproto_proto_rawDesc = "" +
 	"\x06number\x18\x01 \x01(\tR\x06number\x12\x16\n" +
 	"\x06street\x18\x02 \x01(\tR\x06street\x12\x1f\n" +
 	"\vpostal_code\x18\x03 \x01(\tR\n" +
-	"postalCode\"\xa7\x02\n" +
+	"postalCode\"\xe3\x02\n" +
 	"\aOptions\x12,\n" +
 	"\x0foptional_string\x18\x01 \x01(\tH\x00R\x0eoptionalString\x88\x01\x01\x12&\n" +
 	"\foptional_int\x18\x02 \x01(\x05H\x01R\voptionalInt\x88\x01\x01\x12<\n" +
 	"\x0eoptional_photo\x18\x03 \x01(\v2\x10.testproto.PhotoH\x02R\roptionalPhoto\x88\x01\x01\x12>\n" +
-	"\roptional_attr\x18\x04 \x01(\v2\x14.testproto.AttributeH\x03R\foptionalAttr\x88\x01\x01B\x12\n" +
+	"\roptional_attr\x18\x04 \x01(\v2\x14.testproto.AttributeH\x03R\foptionalAttr\x88\x01\x01\x12(\n" +
+	"\roptional_bool\x18\x05 \x01(\bH\x04R\foptionalBool\x88\x01\x01B\x12\n" +
 	"\x10_optional_stringB\x0f\n" +
 	"\r_optional_intB\x11\n" +
 	"\x0f_optional_photoB\x10\n" +
-	"\x0e_optional_attr\"\xf3\x03\n" +
+	"\x0e_optional_attrB\x10\n" +
+	"\x0e_optional_bool\"\xf3\x03\n" +
 	"\aProfile\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.testproto.UserR\x04user\x12&\n" +
 	"\x05photo\x18\x02 \x01(\v2\x10.testproto.PhotoR\x05photo\x12)\n" +

@@ -1249,6 +1249,84 @@ func TestOverwrite(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "overwrite optional bool from true to false",
+			paths: []string{"optional_bool"},
+			src: &testproto.Options{
+				OptionalBool: proto.Bool(false),
+			},
+			dest: &testproto.Options{
+				OptionalBool: proto.Bool(true),
+			},
+			want: &testproto.Options{
+				OptionalBool: proto.Bool(false),
+			},
+		},
+		{
+			name:  "overwrite optional bool from false to true",
+			paths: []string{"optional_bool"},
+			src: &testproto.Options{
+				OptionalBool: proto.Bool(true),
+			},
+			dest: &testproto.Options{
+				OptionalBool: proto.Bool(false),
+			},
+			want: &testproto.Options{
+				OptionalBool: proto.Bool(true),
+			},
+		},
+		{
+			name:  "overwrite optional bool from nil to false",
+			paths: []string{"optional_bool"},
+			src: &testproto.Options{
+				OptionalBool: proto.Bool(false),
+			},
+			dest: &testproto.Options{
+				OptionalBool: nil,
+			},
+			want: &testproto.Options{
+				OptionalBool: proto.Bool(false),
+			},
+		},
+		{
+			name:  "clear optional bool from true to nil",
+			paths: []string{"optional_bool"},
+			src: &testproto.Options{
+				OptionalBool: nil,
+			},
+			dest: &testproto.Options{
+				OptionalBool: proto.Bool(true),
+			},
+			want: &testproto.Options{
+				OptionalBool: nil,
+			},
+		},
+		{
+			name:  "overwrite optional int to zero",
+			paths: []string{"optional_int"},
+			src: &testproto.Options{
+				OptionalInt: proto.Int32(0),
+			},
+			dest: &testproto.Options{
+				OptionalInt: proto.Int32(42),
+			},
+			want: &testproto.Options{
+				OptionalInt: proto.Int32(0),
+			},
+		},
+		{
+			name:  "overwrite optional string to empty",
+			paths: []string{"optional_string"},
+			src: &testproto.Options{
+				OptionalString: proto.String(""),
+			},
+			dest: &testproto.Options{
+				OptionalString: proto.String("hello"),
+			},
+			want: &testproto.Options{
+				OptionalString: proto.String(""),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
