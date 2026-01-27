@@ -201,23 +201,10 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 		srcFD := srcRft.Descriptor().Fields().ByName(protoreflect.Name(srcFDName))
 		srcVal := srcRft.Get(srcFD)
 		if len(submask) == 0 {
-			if srcFD.HasPresence() {
-				// For fields with presence (optional, oneof, message),
-				// check if the field is set rather than comparing to default.
-				// This allows setting optional scalars to their default values
-				// (e.g., optional bool to false, optional int to 0).
-				if srcRft.Has(srcFD) {
-					destRft.Set(srcFD, srcVal)
-				} else {
-					destRft.Clear(srcFD)
-				}
+			if srcRft.Has(srcFD) {
+				destRft.Set(srcFD, srcVal)
 			} else {
-				// For fields without presence, use existing behavior
-				if isValid(srcFD, srcVal) && !srcVal.Equal(srcFD.Default()) {
-					destRft.Set(srcFD, srcVal)
-				} else {
-					destRft.Clear(srcFD)
-				}
+				destRft.Clear(srcFD)
 			}
 		} else if srcFD.IsMap() && srcFD.Kind() == protoreflect.MessageKind {
 			srcMap := srcRft.Get(srcFD).Map()
@@ -327,17 +314,6 @@ func fullPath(pathPrefix, field string) string {
 	}
 
 	return pathPrefix + "." + field
-}
-
-func isValid(fd protoreflect.FieldDescriptor, val protoreflect.Value) bool {
-	if fd.IsMap() {
-		return val.Map().IsValid()
-	} else if fd.IsList() {
-		return val.List().IsValid()
-	} else if fd.Message() != nil {
-		return val.Message().IsValid()
-	}
-	return true
 }
 
 // PathsFromFieldNumbers converts protobuf field numbers to field paths for the given message.
