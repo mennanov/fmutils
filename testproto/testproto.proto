@@ -38,6 +38,7 @@ message Options {
   optional int32 optional_int = 2;
   optional Photo optional_photo = 3;
   optional Attribute optional_attr = 4;
+  optional bool optional_bool = 5;
 }
 
 message Profile {

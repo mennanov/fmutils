@@ -201,7 +201,7 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 		srcFD := srcRft.Descriptor().Fields().ByName(protoreflect.Name(srcFDName))
 		srcVal := srcRft.Get(srcFD)
 		if len(submask) == 0 {
-			if isValid(srcFD, srcVal) && !srcVal.Equal(srcFD.Default()) {
+			if srcRft.Has(srcFD) {
 				destRft.Set(srcFD, srcVal)
 			} else {
 				destRft.Clear(srcFD)
@@ -314,17 +314,6 @@ func fullPath(pathPrefix, field string) string {
 	}
 
 	return pathPrefix + "." + field
-}
-
-func isValid(fd protoreflect.FieldDescriptor, val protoreflect.Value) bool {
-	if fd.IsMap() {
-		return val.Map().IsValid()
-	} else if fd.IsList() {
-		return val.List().IsValid()
-	} else if fd.Message() != nil {
-		return val.Message().IsValid()
-	}
-	return true
 }
 
 // PathsFromFieldNumbers converts protobuf field numbers to field paths for the given message.
