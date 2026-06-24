@@ -266,12 +266,36 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 
 func (mask NestedMask) validate(pathPrefix string, msg protoreflect.Message) error {
 	for fieldName, submask := range mask {
+		path := fullPath(pathPrefix, fieldName)
+
 		fieldDesc := msg.Descriptor().Fields().ByName(protoreflect.Name(fieldName))
 		if fieldDesc == nil {
-			return fmt.Errorf("unknown path: %q", fullPath(pathPrefix, fieldName))
+			return fmt.Errorf("unknown path: %q", path)
 		}
 
 		if len(submask) == 0 {
+			continue
+		}
+
+		// The segment after a map field is a map key (always valid); anything
+		// nested beyond it is validated against the map value message.
+		if fieldDesc.IsMap() {
+			valueIsMessage := fieldDesc.MapValue().Kind() == protoreflect.MessageKind
+			for mapKey, keySubmask := range submask {
+				if len(keySubmask) == 0 {
+					continue
+				}
+
+				keyPath := fullPath(path, mapKey)
+				if !valueIsMessage {
+					return fmt.Errorf("%q: map value isn't message kind", keyPath)
+				}
+
+				if err := keySubmask.validate(keyPath, msg.Get(fieldDesc).Map().NewValue().Message()); err != nil {
+					return err
+				}
+			}
+
 			continue
 		}
 
@@ -283,23 +307,15 @@ func (mask NestedMask) validate(pathPrefix string, msg protoreflect.Message) err
 			var ok bool
 
 			if nestedMsg, ok = listVal.Interface().(protoreflect.Message); !ok {
-				return fmt.Errorf("%q: list element isn't message kind", fullPath(pathPrefix, fieldName))
-			}
-		} else if fieldDesc.IsMap() {
-			mapVal := msg.Get(fieldDesc).Map().NewValue()
-
-			var ok bool
-
-			if nestedMsg, ok = mapVal.Interface().(protoreflect.Message); !ok {
-				return fmt.Errorf("%q: map value isn't message kind", fullPath(pathPrefix, fieldName))
+				return fmt.Errorf("%q: list element isn't message kind", path)
 			}
 		} else if fieldDesc.Kind() == protoreflect.MessageKind {
 			nestedMsg = msg.Get(fieldDesc).Message()
 		} else {
-			return fmt.Errorf("%q: can't get nested fields", fullPath(pathPrefix, fieldName))
+			return fmt.Errorf("%q: can't get nested fields", path)
 		}
 
-		err := submask.validate(fullPath(pathPrefix, fieldName), nestedMsg)
+		err := submask.validate(path, nestedMsg)
 		if err != nil {
 			return err
 		}

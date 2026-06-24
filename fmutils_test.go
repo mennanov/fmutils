@@ -1424,6 +1424,28 @@ func TestValidate(t *testing.T) {
 			},
 		},
 		{
+			name: "map key in fieldmask",
+			msg:  &testproto.Profile{},
+			paths: []string{
+				"attributes.src1.tags.key1",
+				"attributes.src2",
+			},
+		},
+		{
+			name: "map key with scalar value map",
+			msg:  &testproto.Attribute{},
+			paths: []string{
+				"tags.key1",
+			},
+		},
+		{
+			name: "map key addressing message value field",
+			msg:  &testproto.Profile{},
+			paths: []string{
+				"addresses_by_name.home.street",
+			},
+		},
+		{
 			name: "happy path with oneof",
 			msg:  &testproto.Event{},
 			paths: []string{
@@ -1470,15 +1492,15 @@ func TestValidate(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "incorrect map field",
+			name:    "incorrect field nested under map key",
 			msg:     &testproto.Profile{},
-			paths:   []string{"attributes.invalid"},
+			paths:   []string{"attributes.src1.invalid"},
 			wantErr: true,
 		},
 		{
-			name:    "incorrect map field",
+			name:    "incorrect nested field under map key",
 			msg:     &testproto.Profile{},
-			paths:   []string{"attributes.invalid"},
+			paths:   []string{"attributes.src1.tags.key1.invalid"},
 			wantErr: true,
 		},
 		{
@@ -1496,7 +1518,7 @@ func TestValidate(t *testing.T) {
 		{
 			name:    "incorrect map field inside oneof",
 			msg:     &testproto.Event{},
-			paths:   []string{"profile.attributes.invalid"},
+			paths:   []string{"profile.attributes.src1.invalid"},
 			wantErr: true,
 		},
 		{
@@ -1512,9 +1534,9 @@ func TestValidate(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:    "incorrect path for map field with scalar value",
+			name:    "incorrect path nested under scalar map value",
 			msg:     &testproto.Attribute{},
-			paths:   []string{"tags.invalid"},
+			paths:   []string{"tags.key1.invalid"},
 			wantErr: true,
 		},
 		{
