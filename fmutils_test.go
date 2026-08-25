@@ -1327,6 +1327,13 @@ func TestOverwrite(t *testing.T) {
 				OptionalString: proto.String(""),
 			},
 		},
+		{
+			name:  "map key path with neither map set does not panic or add an entry",
+			paths: []string{"addresses_by_name.home.number"},
+			src:   &testproto.Profile{},
+			dest:  &testproto.Profile{},
+			want:  &testproto.Profile{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1335,6 +1342,21 @@ func TestOverwrite(t *testing.T) {
 				t.Errorf("dest %v, want %v", tt.dest, tt.want)
 			}
 		})
+	}
+}
+
+func TestOverwriteDoesNotAliasSrcMap(t *testing.T) {
+	src := &testproto.Profile{
+		AddressesByName: map[string]*testproto.Address{
+			"home": {Number: "18", PostalCode: "75007"},
+		},
+	}
+	dest := &testproto.Profile{}
+	Overwrite(src, dest, []string{"addresses_by_name.home.number"})
+
+	src.AddressesByName["work"] = &testproto.Address{Number: "2"}
+	if _, ok := dest.AddressesByName["work"]; ok {
+		t.Error("dest shares its map with src: a key added to src showed up in dest")
 	}
 }
 

@@ -179,6 +179,8 @@ func (mask NestedMask) Prune(msg proto.Message) {
 // Supports scalars, messages, repeated fields, and maps.
 // If the parent of the field is nil message, the parent is initiated before overwriting the field
 // If the field in src is empty value, the field in dest is cleared.
+// A field overwritten as a whole is assigned, not copied, so dest and src end up
+// sharing that message, list or map; clone src first if it is mutated afterwards.
 // Paths are assumed to be valid and normalized otherwise the function may panic.
 func (mask NestedMask) Overwrite(src, dest proto.Message) {
 	mask.overwrite(src.ProtoReflect(), dest.ProtoReflect())
@@ -212,11 +214,9 @@ func (mask NestedMask) overwrite(srcRft, destRft protoreflect.Message) {
 			}
 		} else if srcFD.IsMap() && srcFD.Kind() == protoreflect.MessageKind {
 			srcMap := srcRft.Get(srcFD).Map()
-			destMap := destRft.Get(srcFD).Map()
-			if !destMap.IsValid() {
-				destRft.Set(srcFD, protoreflect.ValueOf(srcMap))
-				destMap = destRft.Get(srcFD).Map()
-			}
+			// Mutable initializes an unset dest map in place. Setting src's map instead
+			// would alias it into dest, and panic when src's own map is unset.
+			destMap := destRft.Mutable(srcFD).Map()
 			srcMap.Range(func(mk protoreflect.MapKey, mv protoreflect.Value) bool {
 				if mi, ok := submask[mk.String()]; ok {
 					if i, ok := mv.Interface().(protoreflect.Message); ok && len(mi) > 0 {
